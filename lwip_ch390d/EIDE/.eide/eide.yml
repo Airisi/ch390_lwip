@@ -1,0 +1,278 @@
+version: "4.1"
+name: lwip_ch390d
+type: ARM
+deviceName: null
+packDir: null
+srcDirs: []
+virtualFolder:
+  name: <virtual_root>
+  files: []
+  folders:
+    - name: Application
+      files: []
+      folders:
+        - name: MDK-ARM
+          files:
+            - path: ../MDK-ARM/startup_stm32g070xx.s
+          folders: []
+        - name: User
+          files:
+            - path: ../Src/main.c
+            - path: ../Src/gpio.c
+            - path: ../Src/rtc.c
+            - path: ../Src/spi.c
+            - path: ../Src/usart.c
+            - path: ../Src/stm32g0xx_it.c
+            - path: ../Src/stm32g0xx_hal_msp.c
+          folders: []
+    - name: Drivers
+      files: []
+      folders:
+        - name: STM32G0xx_HAL_Driver
+          files:
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rtc.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rtc_ex.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rcc.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rcc_ex.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_flash.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_flash_ex.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_gpio.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_dma.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_dma_ex.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_dma.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_pwr.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_pwr_ex.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_cortex.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_exti.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_spi.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_spi_ex.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_tim.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_tim_ex.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_uart.c
+            - path: ../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_uart_ex.c
+          folders: []
+        - name: CMSIS
+          files:
+            - path: ../Src/system_stm32g0xx.c
+          folders: []
+    - name: ch390d
+      files:
+        - path: ../../ch390d/CH390.c
+        - path: ../../ch390d/CH390_Interface.c
+      folders: []
+    - name: lwip_2.2.0
+      files:
+        - path: ../../lwip-2_2_0/src/api/api_lib.c
+        - path: ../../lwip-2_2_0/src/api/api_msg.c
+        - path: ../../lwip-2_2_0/src/api/err.c
+        - path: ../../lwip-2_2_0/src/api/if_api.c
+        - path: ../../lwip-2_2_0/src/api/netbuf.c
+        - path: ../../lwip-2_2_0/src/api/netdb.c
+        - path: ../../lwip-2_2_0/src/api/netifapi.c
+        - path: ../../lwip-2_2_0/src/api/sockets.c
+        - path: ../../lwip-2_2_0/src/api/tcpip.c
+        - path: ../../lwip-2_2_0/src/core/altcp.c
+        - path: ../../lwip-2_2_0/src/core/altcp_alloc.c
+        - path: ../../lwip-2_2_0/src/core/altcp_tcp.c
+        - path: ../../lwip-2_2_0/src/core/def.c
+        - path: ../../lwip-2_2_0/src/core/dns.c
+        - path: ../../lwip-2_2_0/src/core/inet_chksum.c
+        - path: ../../lwip-2_2_0/src/core/init.c
+        - path: ../../lwip-2_2_0/src/core/ip.c
+        - path: ../../lwip-2_2_0/src/core/mem.c
+        - path: ../../lwip-2_2_0/src/core/memp.c
+        - path: ../../lwip-2_2_0/src/core/netif.c
+        - path: ../../lwip-2_2_0/src/core/pbuf.c
+        - path: ../../lwip-2_2_0/src/core/raw.c
+        - path: ../../lwip-2_2_0/src/core/stats.c
+        - path: ../../lwip-2_2_0/src/core/sys.c
+        - path: ../../lwip-2_2_0/src/core/tcp.c
+        - path: ../../lwip-2_2_0/src/core/tcp_in.c
+        - path: ../../lwip-2_2_0/src/core/tcp_out.c
+        - path: ../../lwip-2_2_0/src/core/timeouts.c
+        - path: ../../lwip-2_2_0/src/core/udp.c
+        - path: ../../lwip-2_2_0/src/core/ipv4/acd.c
+        - path: ../../lwip-2_2_0/src/core/ipv4/autoip.c
+        - path: ../../lwip-2_2_0/src/core/ipv4/dhcp.c
+        - path: ../../lwip-2_2_0/src/core/ipv4/etharp.c
+        - path: ../../lwip-2_2_0/src/core/ipv4/icmp.c
+        - path: ../../lwip-2_2_0/src/core/ipv4/igmp.c
+        - path: ../../lwip-2_2_0/src/core/ipv4/ip4.c
+        - path: ../../lwip-2_2_0/src/core/ipv4/ip4_addr.c
+        - path: ../../lwip-2_2_0/src/core/ipv4/ip4_frag.c
+        - path: ../../lwip-2_2_0/src/core/ipv6/dhcp6.c
+        - path: ../../lwip-2_2_0/src/core/ipv6/ethip6.c
+        - path: ../../lwip-2_2_0/src/core/ipv6/icmp6.c
+        - path: ../../lwip-2_2_0/src/core/ipv6/inet6.c
+        - path: ../../lwip-2_2_0/src/core/ipv6/ip6.c
+        - path: ../../lwip-2_2_0/src/core/ipv6/ip6_addr.c
+        - path: ../../lwip-2_2_0/src/core/ipv6/ip6_frag.c
+        - path: ../../lwip-2_2_0/src/core/ipv6/mld6.c
+        - path: ../../lwip-2_2_0/src/core/ipv6/nd6.c
+        - path: ../../lwip-2_2_0/src/netif/bridgeif.c
+        - path: ../../lwip-2_2_0/src/netif/bridgeif_fdb.c
+        - path: ../../lwip-2_2_0/src/netif/ethernet.c
+        - path: ../../lwip-2_2_0/src/netif/ethernetif.c
+        - path: ../../lwip-2_2_0/src/netif/lowpan6.c
+        - path: ../../lwip-2_2_0/src/netif/lowpan6_ble.c
+        - path: ../../lwip-2_2_0/src/netif/lowpan6_common.c
+        - path: ../../lwip-2_2_0/src/netif/zepif.c
+      folders: []
+    - name: delay
+      files:
+        - path: ../../systick/delay.c
+      folders: []
+    - name: tcp
+      files:
+        - path: ../../tcpudp/tcp_echo.c
+        - path: ../../../5.stm32g070_lwip_ch390d/tcpudp/udp_echo.c
+      folders: []
+    - name: ::CMSIS
+      files: []
+      folders: []
+dependenceList: []
+outDir: build
+miscInfo:
+  uid: 14916d746e3ea2e6647a87e449bbb3e7
+targets:
+  lwip_ch390d:
+    cppPreprocessAttrs:
+      defineList:
+        - USE_HAL_DRIVER
+        - STM32G070xx
+      incList:
+        - ../Inc
+        - ../Drivers/STM32G0xx_HAL_Driver/Inc
+        - ../Drivers/STM32G0xx_HAL_Driver/Inc/Legacy
+        - ../Drivers/CMSIS/Device/ST/STM32G0xx/Include
+        - ../Drivers/CMSIS/Include
+        - ../../systick
+        - ../../ch390d
+        - ../../lwip-2_2_0/src/apps
+        - ../../lwip-2_2_0/src/include
+        - ../../lwip-2_2_0/src/include/arch
+        - ../../lwip-2_2_0/src/include/lwip
+        - ../../tcpudp
+        - .cmsis/include
+        - ../MDK-ARM/RTE/_lwip_ch390d
+      libList: []
+    excludeList: []
+    settings:
+      debugger: cortex-debug
+    toolchain: AC5
+    toolchainConfigMap:
+      AC5:
+        archExtensions: ""
+        cpuType: Cortex-M0+
+        floatingPointHardware: none
+        options:
+          version: 4
+          afterBuildTasks: []
+          asm-compiler:
+            defines: []
+          beforeBuildTasks: []
+          c/cpp-compiler:
+            CXX_FLAGS: --diag_suppress=1 --diag_suppress=1295
+            C_FLAGS: --diag_suppress=1 --diag_suppress=1295
+            c99-mode: true
+            one-elf-section-per-function: true
+            optimization: level-3
+            warnings: all-warnings
+          global:
+            output-debug-info: enable
+            use-microLIB: false
+          linker:
+            $outputTaskExcludes:
+              - .bin
+            output-format: elf
+            ro-base: ""
+            rw-base: ""
+            xo-base: ""
+        scatterFilePath: ""
+        storageLayout:
+          RAM:
+            - id: 1
+              isChecked: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              noInit: false
+              tag: RAM
+            - id: 2
+              isChecked: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              noInit: false
+              tag: RAM
+            - id: 3
+              isChecked: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              noInit: false
+              tag: RAM
+            - id: 1
+              isChecked: true
+              mem:
+                size: "0x9000"
+                startAddr: "0x20000000"
+              noInit: false
+              tag: IRAM
+            - id: 2
+              isChecked: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              noInit: false
+              tag: IRAM
+          ROM:
+            - id: 1
+              isChecked: false
+              isStartup: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              tag: ROM
+            - id: 2
+              isChecked: false
+              isStartup: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              tag: ROM
+            - id: 3
+              isChecked: false
+              isStartup: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              tag: ROM
+            - id: 1
+              isChecked: true
+              isStartup: true
+              mem:
+                size: "0x20000"
+                startAddr: "0x8000000"
+              tag: IROM
+            - id: 2
+              isChecked: false
+              isStartup: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              tag: IROM
+        useCustomScatterFile: false
+    uploadConfigMap:
+      JLink:
+        baseAddr: ""
+        bin: ""
+        cpuInfo:
+          cpuName: "null"
+          vendor: "null"
+        otherCmds: ""
+        proType: 1
+        speed: 8000
+    uploader: JLink
