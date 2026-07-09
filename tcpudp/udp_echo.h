@@ -14,5 +14,6 @@
 #define USER_UDPECHO_H_
 
 void udpecho_init(void);
+void udp_discover_init(void);
 
 #endif /* USER_UDPECHO_H_ */

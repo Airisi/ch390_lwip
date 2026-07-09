@@ -4,27 +4,6 @@
             "path": "."
         },
         {
-            "path": "../../ch390d"
-        },
-        {
-            "path": "../../lwip-2_2_0"
-        },
-        {
-            "path": "../../systick"
-        },
-        {
-            "path": "../../tcpudp"
-        },
-        {
-            "path": "../Drivers"
-        },
-        {
-            "path": "../Inc"
-        },
-        {
-            "path": "../Src"
-        },
-        {
             "name": "8.stm32g070_lwip_ch390d_GPIO_auto",
             "path": "../.."
         }

@@ -127,7 +127,7 @@ virtualFolder:
     - name: tcp
       files:
         - path: ../../tcpudp/tcp_echo.c
-        - path: ../../../5.stm32g070_lwip_ch390d/tcpudp/udp_echo.c
+        - path: ../../tcpudp/udp_echo.c
       folders: []
     - name: ::CMSIS
       files: []

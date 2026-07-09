@@ -217,7 +217,8 @@ int main(void)
 //    printf("DHCP complete\r\n");
 //    printf("IP: %s\r\n", ip4addr_ntoa(netif_ip4_addr(&ch390_netif)));
 #endif 
-   udpecho_init();
+  //  udpecho_init();
+   udp_discover_init();
    tcp_client_init();
    tcp_server_init();
   /* USER CODE END 2 */
