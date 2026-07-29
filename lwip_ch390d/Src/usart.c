@@ -22,24 +22,24 @@
 
 /* USER CODE BEGIN 0 */
 #include "stdio.h"
-uint8_t uart_recv_arr[8];          /*´®¿Ú½ÓÊÕ»º³åÇø*/
-uint8_t uart_recv_flag=0;           /*´®¿Ú½ÓÊÕÍê³É±êÖ¾Î»*/
-/* Èç¹ûÊ¹ÓÃos,Ôò°üÀ¨ÏÂÃæµÄÍ·ÎÄ¼ş¼´¿É. */
+uint8_t uart_recv_arr[8];          /*ä¸²å£æ¥æ”¶ç¼“å†²åŒº*/
+volatile uint8_t uart_recv_flag=0;           /*ä¸²å£æ¥æ”¶å®Œæˆæ ‡å¿—ä½*/
+/* å¦‚æœä½¿ç”¨os,åˆ™åŒ…æ‹¬ä¸‹é¢çš„å¤´æ–‡ä»¶å³å¯. */
 #if SYS_SUPPORT_OS
-#include "os.h" /* os Ê¹ÓÃ */
+#include "os.h" /* os ä½¿ç”¨ */
 #endif
 
 /******************************************************************************************/
-/* ¼ÓÈëÒÔÏÂ´úÂë, Ö§³Öprintfº¯Êı, ¶ø²»ĞèÒªÑ¡Ôñuse MicroLIB */
+/* åŠ å…¥ä»¥ä¸‹ä»£ç , æ”¯æŒprintfå‡½æ•°, è€Œä¸éœ€è¦é€‰æ‹©use MicroLIB */
 
 #if 1
 
-#if (__ARMCC_VERSION >= 6010050)            /* Ê¹ÓÃAC6±àÒëÆ÷Ê± */
-__asm(".global __use_no_semihosting\n\t");  /* ÉùÃ÷²»Ê¹ÓÃ°ëÖ÷»úÄ£Ê½ */
-__asm(".global __ARM_use_no_argv \n\t");    /* AC6ÏÂĞèÒªÉùÃ÷mainº¯ÊıÎªÎŞ²ÎÊı¸ñÊ½£¬·ñÔò²¿·ÖÀı³Ì¿ÉÄÜ³öÏÖ°ëÖ÷»úÄ£Ê½ */
+#if (__ARMCC_VERSION >= 6010050)            /* ä½¿ç”¨AC6ç¼–è¯‘å™¨æ—¶ */
+__asm(".global __use_no_semihosting\n\t");  /* å£°æ˜ä¸ä½¿ç”¨åŠä¸»æœºæ¨¡å¼ */
+__asm(".global __ARM_use_no_argv \n\t");    /* AC6ä¸‹éœ€è¦å£°æ˜mainå‡½æ•°ä¸ºæ— å‚æ•°æ ¼å¼ï¼Œå¦åˆ™éƒ¨åˆ†ä¾‹ç¨‹å¯èƒ½å‡ºç°åŠä¸»æœºæ¨¡å¼ */
 
 #else
-/* Ê¹ÓÃAC5±àÒëÆ÷Ê±, ÒªÔÚÕâÀï¶¨Òå__FILE ºÍ ²»Ê¹ÓÃ°ëÖ÷»úÄ£Ê½ */
+/* ä½¿ç”¨AC5ç¼–è¯‘å™¨æ—¶, è¦åœ¨è¿™é‡Œå®šä¹‰__FILE å’Œ ä¸ä½¿ç”¨åŠä¸»æœºæ¨¡å¼ */
 #pragma import(__use_no_semihosting)
 
 struct __FILE
@@ -52,14 +52,14 @@ struct __FILE
 
 #endif
 
-/* ²»Ê¹ÓÃ°ëÖ÷»úÄ£Ê½£¬ÖÁÉÙĞèÒªÖØ¶¨Òå_ttywrch\_sys_exit\_sys_command_stringº¯Êı,ÒÔÍ¬Ê±¼æÈİAC6ºÍAC5Ä£Ê½ */
+/* ä¸ä½¿ç”¨åŠä¸»æœºæ¨¡å¼ï¼Œè‡³å°‘éœ€è¦é‡å®šä¹‰_ttywrch\_sys_exit\_sys_command_stringå‡½æ•°,ä»¥åŒæ—¶å…¼å®¹AC6å’ŒAC5æ¨¡å¼ */
 int _ttywrch(int ch)
 {
     ch = ch;
     return ch;
 }
 
-/* ¶¨Òå_sys_exit()ÒÔ±ÜÃâÊ¹ÓÃ°ëÖ÷»úÄ£Ê½ */
+/* å®šä¹‰_sys_exit()ä»¥é¿å…ä½¿ç”¨åŠä¸»æœºæ¨¡å¼ */
 void _sys_exit(int x)
 {
     x = x;
@@ -71,15 +71,15 @@ char *_sys_command_string(char *cmd, int len)
 }
 
 
-/* FILE ÔÚ stdio.hÀïÃæ¶¨Òå. */
+/* FILE åœ¨ stdio.hé‡Œé¢å®šä¹‰. */
 FILE __stdout;
 
-/* MDKÏÂĞèÒªÖØ¶¨Òåfputcº¯Êı, printfº¯Êı×îÖÕ»áÍ¨¹ıµ÷ÓÃfputcÊä³ö×Ö·û´®µ½´®¿Ú */
+/* MDKä¸‹éœ€è¦é‡å®šä¹‰fputcå‡½æ•°, printfå‡½æ•°æœ€ç»ˆä¼šé€šè¿‡è°ƒç”¨fputcè¾“å‡ºå­—ç¬¦ä¸²åˆ°ä¸²å£ */
 int fputc(int ch, FILE *f)
 {
-     while (!(USART1->ISR&0x40));           /* µÈ´ıÉÏÒ»¸ö×Ö·û·¢ËÍÍê³É */
+     while (!(USART1->ISR&0x40));           /* ç­‰å¾…ä¸Šä¸€ä¸ªå­—ç¬¦å‘é€å®Œæˆ */
 
-    USART1->TDR = (uint8_t)ch;             /* ½«Òª·¢ËÍµÄ×Ö·û ch Ğ´Èëµ½DR¼Ä´æÆ÷ */
+    USART1->TDR = (uint8_t)ch;             /* å°†è¦å‘é€çš„å­—ç¬¦ ch å†™å…¥åˆ°DRå¯„å­˜å™¨ */
     return ch;
 }
 #endif
