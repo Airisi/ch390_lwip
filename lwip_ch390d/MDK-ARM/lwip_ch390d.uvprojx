@@ -531,6 +531,11 @@
               <FileType>1</FileType>
               <FilePath>../Src/stm32g0xx_hal_msp.c</FilePath>
             </File>
+            <File>
+              <FileName>flash_net_cfg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\flash_net_cfg.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

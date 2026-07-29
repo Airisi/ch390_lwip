@@ -40,6 +40,7 @@
 #include <string.h>
 #include "lwipopts.h"
 #include "lwip/ip_addr.h"
+#include "flash_net_cfg.h"
 
 /* USER CODE END Includes */
 
@@ -169,6 +170,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
   struct ip4_addr ipaddr, netmask, gateway;
   struct dhcp *dhcp;
+  FlashNetCfg_t flash_cfg;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -196,10 +198,30 @@ int main(void)
   MX_USART1_UART_Init();
   HAL_Delay(10);
   /* USER CODE BEGIN 2 */
-  IP4_ADDR(&ipaddr, 0, 0, 0, 0);
-  IP4_ADDR(&netmask, 0, 0, 0, 0);
-  IP4_ADDR(&gateway, 0, 0, 0, 0);
-  init_lwip_netif(&ipaddr, &netmask, &gateway);
+  /* 从Flash加载网络配置 */
+  if (flash_net_cfg_load(&flash_cfg) == 0 && flash_cfg.net_mode == 1)
+  {
+    /* Flash中有有效的静态IP配置 */
+    net_mode = 1;
+    IP4_ADDR(&ipaddr, flash_cfg.ip[0], flash_cfg.ip[1], flash_cfg.ip[2], flash_cfg.ip[3]);
+    IP4_ADDR(&netmask, flash_cfg.mask[0], flash_cfg.mask[1], flash_cfg.mask[2], flash_cfg.mask[3]);
+    IP4_ADDR(&gateway, flash_cfg.gw[0], flash_cfg.gw[1], flash_cfg.gw[2], flash_cfg.gw[3]);
+    init_lwip_netif(&ipaddr, &netmask, &gateway);
+    printf("Load static IP from flash\r\n");
+    printf("IP  : %s\r\n", ip4addr_ntoa(&ipaddr));
+    printf("Mask: %s\r\n", ip4addr_ntoa(&netmask));
+    printf("GW  : %s\r\n", ip4addr_ntoa(&gateway));
+  }
+  else
+  {
+    printf("DHCP mode\r\n");
+    /* DHCP模式 */
+    net_mode = 0;
+    IP4_ADDR(&ipaddr, 0, 0, 0, 0);
+    IP4_ADDR(&netmask, 0, 0, 0, 0);
+    IP4_ADDR(&gateway, 0, 0, 0, 0);
+    init_lwip_netif(&ipaddr, &netmask, &gateway);
+  }
     // Wait until phy link up
 //   while (!ch390_get_link_status())
 //   {
@@ -209,7 +231,10 @@ int main(void)
 //  printf("netif link up\r\n");
 
 #if USE_DHCP
-    dhcp_start(&ch390_netif);
+    if (net_mode == 0)
+    {
+      dhcp_start(&ch390_netif);
+    }
 //    struct dhcp *dhcp;
 //    dhcp = netif_dhcp_data(&ch390_netif);
 //    // Wait untill dhcp complete
@@ -1300,6 +1325,7 @@ void uart_recv_data_process(void)
           dhcp_start(&ch390_netif);
           net_mode = 0;
           static_ip_frame = 0;
+          flash_net_cfg_clear();  /* 清除Flash中的静态配置 */
         }
         else if (mode == 1)  /* 切换到静态IP (等待后续帧配置地址) */
         {
@@ -1350,9 +1376,17 @@ void uart_recv_data_process(void)
           netif_set_addr(&ch390_netif, &ip, &mask, &gw);
           netif_set_up(&ch390_netif);
           static_ip_frame = 0;
+          /* 保存到Flash */
+          FlashNetCfg_t save_cfg;
+          save_cfg.net_mode = 1;
+          memcpy(save_cfg.ip, static_ip, 4);
+          memcpy(save_cfg.mask, static_mask, 4);
+          memcpy(save_cfg.gw, static_gw, 4);
+          memset(save_cfg.reserved, 0, 3);
+          flash_net_cfg_save(&save_cfg);
           /* 回发确认 */
           send_net_mode_ack();
-          printf("Static IP set: %s\r\n", ip4addr_ntoa(&ip));
+          // printf("Static IP set: %s\r\n", ip4addr_ntoa(&ip));
         }
       }
       break;
