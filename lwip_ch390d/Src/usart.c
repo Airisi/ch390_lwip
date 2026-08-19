@@ -22,8 +22,21 @@
 
 /* USER CODE BEGIN 0 */
 #include "stdio.h"
-uint8_t uart_recv_arr[8];          /*串口接收缓冲区*/
+#include "string.h"
+
+#define UART_RING_BUF_SIZE   1024   /* 环形缓冲区大小，必须是2的幂 */
+#define UART_RING_BUF_MASK   (UART_RING_BUF_SIZE - 1)  /* 位掩码，用于取模 */
+
+uint8_t uart_recv_arr[8];          /*串口接收缓冲区（帧头+数据+帧尾）*/
 volatile uint8_t uart_recv_flag=0;           /*串口接收完成标志位*/
+
+/* 环形缓冲区（带溢出保护） */
+static uint8_t uart_ring_buf[UART_RING_BUF_SIZE];
+static volatile uint16_t uart_ring_head = 0;  /* 写入位置（生产者） */
+static volatile uint16_t uart_ring_tail = 0;  /* 读取位置（消费者） */
+
+/* 单字节接收缓冲 */
+static uint8_t uart_rx_byte;
 /* 如果使用os,则包括下面的头文件即可. */
 #if SYS_SUPPORT_OS
 #include "os.h" /* os 使用 */
@@ -129,7 +142,7 @@ void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
-   HAL_UART_Receive_IT(&huart1, uart_recv_arr, 8);
+   HAL_UART_Receive_IT(&huart1, &uart_rx_byte, 1);  /* 每次接收1个字节 */
   /* USER CODE END USART1_Init 2 */
 
 }
@@ -194,12 +207,129 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
 /* USER CODE BEGIN 1 */
 
-void  HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+/**
+ * @brief  获取环形缓冲区已使用空间
+ * @retval 数据数量（0 ~ UART_RING_BUF_SIZE）
+ */
+static inline uint16_t uart_ring_used(void)
 {
-  if(huart->Instance==USART1)
-  {
-    uart_recv_flag=1;
-  }
+    uint16_t used = uart_ring_head - uart_ring_tail;
+    /* 防御性检查：理论上不会超过 BUF_SIZE，但防止异常情况 */
+    if(used > UART_RING_BUF_SIZE)
+        return 0;
+    return used;
+}
+
+/**
+ * @brief  获取环形缓冲区剩余空间
+ * @retval 剩余可写入的字节数
+ */
+static inline uint16_t uart_ring_free(void)
+{
+    return UART_RING_BUF_SIZE - uart_ring_used();
+}
+
+/**
+ * @brief  将数据写入环形缓冲区（满时覆盖最旧数据）
+ * @param  data: 要写入的数据
+ * @retval 始终返回0（写入成功）
+ */
+static int uart_ring_write(uint8_t data)
+{
+    /* 缓冲区满时，移动tail丢弃最旧的数据 */
+    if(uart_ring_free() == 0)
+    {
+        uart_ring_tail++;  /* 丢弃最旧的数据 */
+    }
+
+    uart_ring_buf[uart_ring_head & UART_RING_BUF_MASK] = data;
+    uart_ring_head++;
+    return 0;
+}
+
+/**
+ * @brief  从环形缓冲区读取数据
+ * @param  data: 读取数据的指针，为NULL时仅丢弃
+ * @retval 0: 成功, -1: 缓冲区为空
+ */
+static int uart_ring_read(uint8_t *data)
+{
+    if(uart_ring_used() == 0)
+        return -1;
+
+    if(data != NULL)
+        *data = uart_ring_buf[uart_ring_tail & UART_RING_BUF_MASK];
+    uart_ring_tail++;
+    return 0;
+}
+
+/**
+ * @brief  从环形缓冲区中预读数据（不移动读指针）
+ * @param  offset: 偏移量（0表示最旧的数据）
+ * @param  data: 读取数据的指针
+ * @retval 0: 成功, -1: 超出范围
+ */
+static int uart_ring_peek(uint16_t offset, uint8_t *data)
+{
+    if(offset >= uart_ring_used())
+        return -1;
+    *data = uart_ring_buf[(uart_ring_tail + offset) & UART_RING_BUF_MASK];
+    return 0;
+}
+
+/**
+ * @brief  串口接收完成回调函数（环形缓冲区 + 帧解析）
+ * @note   帧格式: [0xFE] [data0] [data1] [data2] [data3] [data4] [data5] [0xFF]
+ *                 帧头(1字节) + 数据(6字节) + 帧尾(1字节) = 8字节
+ *
+ *         处理流程:
+ *         1. 将接收到的字节存入环形缓冲区
+ *         2. 从缓冲区中解析完整帧
+ *         3. 找到帧头0xFE后，检查是否有8字节
+ *         4. 验证帧尾0xFF，存储有效帧
+ */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if(huart->Instance == USART1)
+    {
+        /* 1. 将接收到的字节存入环形缓冲区 */
+        uart_ring_write(uart_rx_byte);
+
+        /* 2. 从缓冲区解析帧 */
+        while(uart_ring_used() >= 8)
+        {
+            uint8_t header, tail;
+
+            /* 预读第0字节，检查帧头 */
+            uart_ring_peek(0, &header);
+            if(header != 0xFE)
+            {
+                /* 帧头错误，丢弃这个字节，继续查找 */
+                uart_ring_read(NULL);
+                continue;
+            }
+
+            /* 预读第7字节，检查帧尾 */
+            uart_ring_peek(7, &tail);
+            if(tail != 0xFF)
+            {
+                /* 帧尾错误，丢弃帧头，继续查找 */
+                uart_ring_read(NULL);
+                continue;
+            }
+
+            /* 找到完整帧，读取并存储 */
+            for(int i = 0; i < 8; i++)
+            {
+                uart_ring_read(&uart_recv_arr[i]);
+            }
+            uart_recv_flag = 1;  /* 标记接收完成 */
+            break;  /* 每次中断只处理一帧 */
+        }
+
+        /* 重新启动单字节接收 */
+        HAL_UART_Receive_IT(&huart1, &uart_rx_byte, 1);
+    }
 }
 /* USER CODE END 1 */
 
