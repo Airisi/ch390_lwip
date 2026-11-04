@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "network_app.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -93,7 +93,7 @@ int main(void)
   MX_RTC_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-
+  network_app_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -103,6 +103,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    network_app_poll();
   }
   /* USER CODE END 3 */
 }

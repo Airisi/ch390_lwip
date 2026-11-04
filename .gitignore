@@ -1,27 +1,60 @@
-*.rar
+# Build outputs (ARMCC, ARM GCC and Keil)
+build/
+**/MDK-ARM/lwip_ch390d/
+**/MDK-ARM/Objects/
+**/MDK-ARM/Listings/
+**/MDK-ARM/*_Data/
 *.o
 *.d
 *.crf
-*.htm
 *.dep
 *.map
-*.bak
 *.lnp
 *.lst
-*.ini
 *.axf
+*.elf
 *.hex
+*.bin
 *.iex
-*.sct
-*.scvd
+*.build_log.htm
+*.build_log.html
+
+# Keil/CubeMX generated state and debugger session files
 *.uvopt
 *.uvguix
-*.dbg*
 *.uvguix.*
+*.dbgconf
+*.dbgconf.base@*
+EventRecorderStub.scvd
 .mxproject
+**/MDK-ARM/RTE/
+JLinkLog*.txt
+JLinkSettings.ini
 
-Src/Application/version.h
-Src/Projects/MDK-ARM/build/
-Src/Projects/MDK-ARM/*.bin
-RTE/
-JLinkLog.txt
+# Local tool settings; shared settings.json and project files stay visible
+**/.claude/settings.local.json
+
+# Python helper caches and environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Temporary files and editor/OS state
+tmp/
+*.bak
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local backup archives
+*.rar
+
+# Keep .ioc/.uvprojx/.uvoptx, linker scripts (.ld/.sct/.scat),
+# documentation (.htm/.html) and non-local .ini files versionable.

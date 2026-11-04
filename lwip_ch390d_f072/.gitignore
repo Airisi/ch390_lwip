@@ -1,0 +1,6 @@
+/build/
+
+# Local migration/build helpers, host tests and auxiliary GCC support
+/tools/
+/tests/
+/GCC/

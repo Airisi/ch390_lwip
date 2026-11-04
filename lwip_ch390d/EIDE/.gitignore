@@ -1,14 +1,19 @@
-# dot files
+# Local editor/EIDE state (keep shared tasks and project configuration)
 /.vscode/launch.json
-/.settings
-/.eide/log
+/.settings/
+/.eide/log/
+/.eide/env.ini
 /.eide.usr.ctx.json
 
-# project out
-/build
-/bin
-/obj
-/out
+# EIDE-generated SDK cache; already tracked files are left untouched
+/.cmsis/
+
+# Project outputs and review intermediates
+/build/
+/bin/
+/obj/
+/out/
+/tmp/
 
 # eide template
 *.ept

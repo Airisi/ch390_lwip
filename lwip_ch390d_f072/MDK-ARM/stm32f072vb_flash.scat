@@ -1,0 +1,11 @@
+; The final 2 KB page is reserved for flash_net_cfg.
+LR_IROM1 0x08000000 0x0001F800 {
+  ER_IROM1 0x08000000 0x0001F800 {
+    *.o (RESET, +First)
+    *(InRoot$$Sections)
+    .ANY (+RO)
+  }
+  RW_IRAM1 0x20000000 0x00004000 {
+    .ANY (+RW +ZI)
+  }
+}
