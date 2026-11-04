@@ -130,9 +130,6 @@ virtualFolder:
         - path: ../../tcpudp/tcp_echo.c
         - path: ../../tcpudp/udp_echo.c
       folders: []
-    - name: ::CMSIS
-      files: []
-      folders: []
 dependenceList: []
 outDir: build
 miscInfo:
@@ -271,7 +268,7 @@ targets:
         baseAddr: ""
         bin: ""
         cpuInfo:
-          cpuName: STM32F072VB
+          cpuName: STM32G070RB
           vendor: ST
         otherCmds: ""
         proType: 1

@@ -1,5 +1,6 @@
-/* Legacy IO dispatchers intentionally copied verbatim from the G070 main.c.
- * The old mappings are NOT adapted to F072 SPI/USB pins in this migration. */
+/* TCP/USB command handling: IO control and network configuration.
+ * Channel mappings currently match the original G070 protocol.
+ * Update them after the new-board protocol is confirmed. */
 #include "main.h"
 #include "control_transport.h"
 #include "flash_net_cfg.h"
