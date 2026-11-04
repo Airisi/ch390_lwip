@@ -32,7 +32,8 @@
             "editor.insertSpaces": true,
             "editor.tabSize": 4,
             "editor.autoIndent": "advanced"
-        }
+        },
+        "EIDE.ARM.ARMCC5.InstallDirectory": "D:\\Program Files\\Keil_v5\\ARM\\armcc_v5_cracked"
     },
     "extensions": {
         "recommendations": [
