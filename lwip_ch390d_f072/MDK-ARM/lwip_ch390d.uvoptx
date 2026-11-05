@@ -690,7 +690,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Port\Src\delay.c</PathWithFileName>
+      <PathWithFileName>..\..\systick\delay.c</PathWithFileName>
       <FilenameWithoutPath>delay.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -762,7 +762,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Port\Src\tcp_echo.c</PathWithFileName>
+      <PathWithFileName>..\..\tcpudp\tcp_echo.c</PathWithFileName>
       <FilenameWithoutPath>tcp_echo.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -774,7 +774,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Port\Src\udp_echo.c</PathWithFileName>
+      <PathWithFileName>..\..\tcpudp\udp_echo.c</PathWithFileName>
       <FilenameWithoutPath>udp_echo.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

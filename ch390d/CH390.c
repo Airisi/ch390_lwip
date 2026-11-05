@@ -12,30 +12,6 @@
 #include "CH390.h"
 #include "CH390_Interface.h"
 
-static volatile uint8_t driver_error;
-uint8_t ch390_get_error(void) { return driver_error; }
-void ch390_clear_error(void) { driver_error = CH390_ERROR_NONE; }
-void ch390_set_error(uint8_t error)
-{
-    if (driver_error == CH390_ERROR_NONE) { driver_error = error; }
-}
-
-static int wait_reg_clear(uint8_t reg, uint8_t mask, uint32_t timeout_ms)
-{
-    uint32_t start = ch390_get_tick();
-    while (ch390_get_error() == CH390_ERROR_NONE) {
-        uint8_t value = ch390_read_reg(reg);
-        if (ch390_get_error() != CH390_ERROR_NONE) { return 0; }
-        if ((value & mask) == 0) { return 1; }
-        if ((uint32_t)(ch390_get_tick() - start) >= timeout_ms) {
-            ch390_set_error(CH390_ERROR_BUSY);
-            return 0;
-        }
-        ch390_delay_us(10);
-    }
-    return 0;
-}
-
 /**
  * @name ch390_receive_packet
  * @brief Receive packet
@@ -99,7 +75,7 @@ void ch390_send_packet(uint8_t *buff, uint16_t length)
     // Write data to SRAM
     ch390_write_mem(buff, length);
     // Wait until last transmit complete
-    if (!wait_reg_clear(CH390_TCR, TCR_TXREQ, 100)) { return; }
+    while(ch390_read_reg(CH390_TCR) & TCR_TXREQ);
     // Set current packet length
     ch390_write_reg(CH390_TXPLL, length & 0xff);
     ch390_write_reg(CH390_TXPLH, (length >> 8) & 0xff);
@@ -146,7 +122,7 @@ uint16_t ch390_read_phy(uint8_t reg)
     ch390_write_reg(CH390_EPAR, CH390_PHY | reg);
     // Chose PHY, send read command
     ch390_write_reg(CH390_EPCR, EPCR_ERPRR | EPCR_EPOS);
-    if (!wait_reg_clear(CH390_EPCR, 0x01, 20)) { return 0xFFFF; }
+    while(ch390_read_reg(CH390_EPCR) & 0x01);
     // Clear read command
     ch390_write_reg(CH390_EPCR, 0x00);
     return (ch390_read_reg(CH390_EPDRH) << 8) |
@@ -166,7 +142,7 @@ void ch390_write_phy(uint8_t reg, uint16_t value)
     ch390_write_reg(CH390_EPDRH, ((value >> 8) & 0xff)); // High byte
     // Chose PHY, send write command
     ch390_write_reg(CH390_EPCR, 0x0A);
-    if (!wait_reg_clear(CH390_EPCR, 0x01, 20)) { return; }
+    while(ch390_read_reg(CH390_EPCR) & 0x01);
     // Clear write command
     ch390_write_reg(CH390_EPCR, 0x00);
 }
@@ -184,7 +160,7 @@ void ch390_write_eeprom(uint8_t reg, uint16_t value)
     ch390_write_reg(CH390_EPDRH, ((value >> 8) & 0xff)); // High byte
     // Chose EEPROM, send write command
     ch390_write_reg(CH390_EPCR, EPCR_ERPRW);
-    if (!wait_reg_clear(CH390_EPCR, 0x01, 100)) { return; }
+    while(ch390_read_reg(CH390_EPCR) & 0x01);
     // Clear write command
     ch390_write_reg(CH390_EPCR, 0x00);
 }
@@ -218,7 +194,6 @@ void ch390_default_config()
     uint8_t multicase_addr[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
     ch390_set_phy_mode(CH390_AUTO);
-    if (ch390_get_error() != CH390_ERROR_NONE) { return; }
     // Clear status
     ch390_write_reg(CH390_NSR, NSR_WAKEST | NSR_TX2END | NSR_TX1END);
     ch390_write_reg(CH390_ISR, 0xFF);         // Clear interrupt status
@@ -260,9 +235,7 @@ void ch390_set_phy_mode(enum ch390_phy_mode mode)
         break;
     }
     ch390_write_phy(CH390_PHY_BMCR, BMCR_value);
-    if (ch390_get_error() != CH390_ERROR_NONE) { return; }
     ch390_write_phy(CH390_PHY_ANAR, ANAR_value);
-    if (ch390_get_error() != CH390_ERROR_NONE) { return; }
     ch390_write_reg(CH390_GPR, 0x00);   // Enable PHY
 }
 

@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F072xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Port/Inc;../Inc;../Drivers/STM32F0xx_HAL_Driver/Inc;../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Drivers/CMSIS/Device/ST/STM32F0xx/Include;../Drivers/CMSIS/Include;../../ch390d;../../tcpudp;../../lwip-2_2_0/src/include</IncludePath>
+              <IncludePath>../Port/Inc;../Inc;../Drivers/STM32F0xx_HAL_Driver/Inc;../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Drivers/CMSIS/Device/ST/STM32F0xx/Include;../Drivers/CMSIS/Include;../../ch390d;../../tcpudp;../../systick;../../lwip-2_2_0/src/include;../../lwip-2_2_0/src/include/arch</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -602,7 +602,7 @@
             <File>
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Port\Src\delay.c</FilePath>
+              <FilePath>..\..\systick\delay.c</FilePath>
             </File>
             <File>
               <FileName>ethernetif.c</FileName>
@@ -632,12 +632,12 @@
             <File>
               <FileName>tcp_echo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Port\Src\tcp_echo.c</FilePath>
+              <FilePath>..\..\tcpudp\tcp_echo.c</FilePath>
             </File>
             <File>
               <FileName>udp_echo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Port\Src\udp_echo.c</FilePath>
+              <FilePath>..\..\tcpudp\udp_echo.c</FilePath>
             </File>
           </Files>
         </Group>

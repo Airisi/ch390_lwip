@@ -1,11 +1,5 @@
-#ifndef __delay_h
-#define __delay_h
-
-
-#include "stm32g0xx_hal.h"
-
+#ifndef F072_DELAY_H
+#define F072_DELAY_H
+#include "main.h"
 void delay_us(uint32_t us);
-
-#endif 
-
-
+#endif

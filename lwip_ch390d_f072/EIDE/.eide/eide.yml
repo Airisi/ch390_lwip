@@ -32,14 +32,14 @@ virtualFolder:
           files:
             - path: ../Port/Src/CH390_Interface.c
             - path: ../Port/Src/control_transport.c
-            - path: ../Port/Src/delay.c
+            - path: ../../systick/delay.c
             - path: ../Port/Src/ethernetif.c
             - path: ../Port/Src/flash_net_cfg.c
             - path: ../Port/Src/command_handler.c
             - path: ../Port/Src/network_app.c
             - path: ../Port/Src/retarget.c
-            - path: ../Port/Src/tcp_echo.c
-            - path: ../Port/Src/udp_echo.c
+            - path: ../../tcpudp/tcp_echo.c
+            - path: ../../tcpudp/udp_echo.c
           folders: []
     - name: Drivers
       files: []
@@ -148,7 +148,9 @@ targets:
         - ../Drivers/CMSIS/Include
         - ../../ch390d
         - ../../tcpudp
+        - ../../systick
         - ../../lwip-2_2_0/src/include
+        - ../../lwip-2_2_0/src/include/arch
         - .cmsis/include
         - ../MDK-ARM/RTE/_lwip_ch390d
       libList: []

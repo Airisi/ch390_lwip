@@ -1,3 +1,4 @@
+/* Original application initialization and foreground ordering, on F072. */
 #include "network_app.h"
 #include "main.h"
 #include "CH390_Interface.h"
@@ -5,32 +6,32 @@
 #include "flash_net_cfg.h"
 #include "netif/ethernetif.h"
 #include "lwip/dhcp.h"
+#include "lwip/prot/dhcp.h"
 #include "lwip/timeouts.h"
 #include "tcp_echo.h"
 #include "udp_echo.h"
+#include <stdio.h>
+#include <string.h>
 
-volatile uint8_t network_hw_ready;
-volatile uint8_t network_last_error;
-volatile uint32_t network_hw_failures;
-static uint32_t last_link_check, last_hardware_attempt;
+static uint8_t dhcp_prev_bound;
 
-static void hardware_failed(void)
+static void ch390_int_handler(void)
 {
-    network_last_error = ch390_get_error();
-    ++network_hw_failures;
-    network_hw_ready = 0;
-    ethernetif_stop(&ch390_netif);
-}
-
-static void hardware_try_start(void)
-{
-    last_hardware_attempt = HAL_GetTick();
-    if (ethernetif_start(&ch390_netif) != ERR_OK) { hardware_failed(); return; }
-    network_hw_ready = 1;
-    network_last_error = CH390_ERROR_NONE;
-    if (ch390_get_link_status()) { netif_set_link_up(&ch390_netif); }
-    if (ch390_get_error() != CH390_ERROR_NONE) { hardware_failed(); }
-    last_link_check = HAL_GetTick();
+    uint8_t int_status = ch390_get_int_status();
+    struct ethernetif *state = ch390_netif.state;
+    if (int_status & ISR_LNKCHG) {
+        HAL_Delay(65);
+        if (ch390_get_link_status()) { netif_set_link_up(&ch390_netif); }
+        else { netif_set_link_down(&ch390_netif); }
+        ch390_write_reg(CH390_ISR, ISR_LNKCHG);
+    }
+    if (int_status & ISR_ROS) {
+        do { ethernetif_input(&ch390_netif); } while (state->rx_len != 0);
+    }
+    if (int_status & ISR_ROO) { printf("Overflow counter overflow\r\n"); }
+    if (int_status & ISR_PR) {
+        do { ethernetif_input(&ch390_netif); } while (state->rx_len != 0);
+    }
 }
 
 void network_app_init(void)
@@ -38,47 +39,60 @@ void network_app_init(void)
     ip4_addr_t ip, mask, gateway;
     FlashNetCfg_t config;
     HAL_Delay(10);
-    if (flash_net_cfg_load(&config) == 0) {
+    if (flash_net_cfg_load(&config) == 0 && config.net_mode == 1) {
         net_mode = 1;
         IP4_ADDR(&ip, config.ip[0], config.ip[1], config.ip[2], config.ip[3]);
         IP4_ADDR(&mask, config.mask[0], config.mask[1], config.mask[2], config.mask[3]);
         IP4_ADDR(&gateway, config.gw[0], config.gw[1], config.gw[2], config.gw[3]);
+        init_lwip_netif(&ip, &mask, &gateway);
+        printf("Load static IP from flash\r\n");
+        printf("IP  : %s\r\n", ip4addr_ntoa(&ip));
+        printf("Mask: %s\r\n", ip4addr_ntoa(&mask));
+        printf("GW  : %s\r\n", ip4addr_ntoa(&gateway));
     } else {
+        printf("DHCP mode\r\n");
         net_mode = 0;
-        ip4_addr_set_zero(&ip);
-        ip4_addr_set_zero(&mask);
-        ip4_addr_set_zero(&gateway);
+        IP4_ADDR(&ip, 0, 0, 0, 0);
+        IP4_ADDR(&mask, 0, 0, 0, 0);
+        IP4_ADDR(&gateway, 0, 0, 0, 0);
+        init_lwip_netif(&ip, &mask, &gateway);
     }
-    init_lwip_netif(&ip, &mask, &gateway);
-    hardware_try_start();
-    if (net_mode == 0 && dhcp_start(&ch390_netif) != ERR_OK) { Error_Handler(); }
+    if (net_mode == 0) { dhcp_start(&ch390_netif); }
     udp_discover_init();
-    tcp_server_init();
     tcp_client_init();
+    tcp_server_init();
 }
 
 void network_app_poll(void)
 {
-    uint32_t now = HAL_GetTick();
-    unsigned budget;
-    if (!network_hw_ready && (uint32_t)(now - last_hardware_attempt) >= 1000U) { hardware_try_start(); }
-    if (network_hw_ready) {
-        uint8_t status = 0;
-        if (ch390_get_int_pin()) { status = ch390_get_int_status(); }
-        if ((status & ISR_LNKCHG) != 0 || (uint32_t)(now - last_link_check) >= 250U) {
-            last_link_check = now;
-            if (ch390_get_link_status()) { netif_set_link_up(&ch390_netif); }
-            else { netif_set_link_down(&ch390_netif); }
+    struct dhcp *dhcp;
+    if (ch390_get_int_pin()) {
+        ch390_int_handler();
+        if (tcp_recv_arr[0] != 0 && tcp_recv_flag == 1) {
+            tcp_recv_flag = 0;
+            tcp_recv_data_process();
+            memset(tcp_recv_arr, 0, sizeof(tcp_recv_arr));
         }
-        for (budget = 0; budget < 4 && ch390_get_error() == CH390_ERROR_NONE; ++budget) {
-            struct ethernetif *state = (struct ethernetif *)ch390_netif.state;
-            ethernetif_input(&ch390_netif);
-            if (state->rx_len == 0) { break; }
-        }
-        if (ch390_get_error() != CH390_ERROR_NONE) { hardware_failed(); }
     }
-    /* Timers and USB remain live when Ethernet hardware is missing or faulty. */
     sys_check_timeouts();
+    if (uart_recv_flag == 1) {
+        uart_recv_flag = 0;
+        uart_recv_data_process();
+    }
+    /* USB IN is asynchronous; keep the submission buffer alive until complete. */
     control_transport_poll();
-    tcp_server_poll();
+    if (net_mode == 0) {
+        dhcp = netif_dhcp_data(&ch390_netif);
+        if (dhcp != NULL && dhcp->state != DHCP_STATE_BOUND) {
+            if (ch390_get_int_pin()) { ch390_int_handler(); }
+            sys_check_timeouts();
+            dhcp_prev_bound = 0;
+        } else if (dhcp != NULL && dhcp->state == DHCP_STATE_BOUND && dhcp_prev_bound == 0) {
+            dhcp_prev_bound = 1;
+            printf("DHCP OK!\r\n");
+            printf("IP  : %s\r\n", ip4addr_ntoa(netif_ip4_addr(&ch390_netif)));
+            printf("Mask: %s\r\n", ip4addr_ntoa(netif_ip4_netmask(&ch390_netif)));
+            printf("GW  : %s\r\n", ip4addr_ntoa(netif_ip4_gw(&ch390_netif)));
+        }
+    }
 }

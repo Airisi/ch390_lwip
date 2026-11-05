@@ -16,7 +16,6 @@
 
 
 uint16_t ch390_get_int_pin(void);
-uint32_t ch390_get_tick(void);
 void ch390_delay_us(uint32_t time);
 void ch30_delay_ns(uint32_t ns);
 
