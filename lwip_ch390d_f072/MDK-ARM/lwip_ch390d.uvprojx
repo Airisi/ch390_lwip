@@ -587,7 +587,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/F072 Port</GroupName>
+          <GroupName>Application/Port</GroupName>
           <Files>
             <File>
               <FileName>CH390_Interface.c</FileName>
@@ -870,5 +870,14 @@
     </components>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>lwip_ch390d</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>
