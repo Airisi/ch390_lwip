@@ -14,6 +14,7 @@
 #define USER_APPS_TCP_ECHO_H_
 
 void tcp_server_init(void);
+void tcp_server_poll(void);
 void tcp_client_init(void);
 
 #endif /* USER_APPS_TCP_ECHO_H_ */

@@ -15,6 +15,8 @@
 #include "CH390_Interface.h"
 #include "delay.h"
 #include "spi.h"
+
+uint32_t ch390_get_tick(void) { return HAL_GetTick(); }
 /*
  * This file defines CH390 operation interface (Parallel
  * or SPI). User should implement one of them.

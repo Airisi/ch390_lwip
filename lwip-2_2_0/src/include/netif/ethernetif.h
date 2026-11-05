@@ -20,6 +20,8 @@ struct ethernetif {
 
 void init_lwip_netif(const ip4_addr_t *ipaddr, const ip4_addr_t *netmask, const ip4_addr_t *gw);
 err_t ethernetif_init(struct netif *netif);
+err_t ethernetif_start(struct netif *netif);
+void ethernetif_stop(struct netif *netif);
 void ethernetif_input(struct netif *netif);
 
 void print_netif(struct netif *netif);

@@ -14,6 +14,15 @@
 
 #include <stdint.h>
 
+#define CH390_ERROR_NONE 0U
+#define CH390_ERROR_SPI  1U
+#define CH390_ERROR_BUSY 2U
+#define CH390_ERROR_ID   3U
+#define CH390_ERROR_MAC  4U
+uint8_t ch390_get_error(void);
+void ch390_set_error(uint8_t error);
+void ch390_clear_error(void);
+
 /********************************************************************
  * Interface selection
  */
