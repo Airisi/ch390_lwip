@@ -96,6 +96,10 @@ uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
 uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
 
 /* USER CODE BEGIN PRIVATE_VARIABLES */
+static uint8_t * volatile rx_pending_buffer;
+static volatile uint16_t rx_pending_length;
+static volatile uint8_t rx_paused;
+static uint8_t dtr_state;
 static uint8_t line_coding[7] = {0x00, 0xC2, 0x01, 0x00, 0x00, 0x00, 0x08};
 /* USER CODE END PRIVATE_VARIABLES */
 
@@ -155,6 +159,10 @@ static int8_t CDC_Init_FS(void)
 #if USB_DIAG_ENABLE
   ++usb_diag.usb_inits;
 #endif
+  control_transport_usb_reset();
+  rx_pending_buffer = NULL;
+  rx_pending_length = 0;
+  rx_paused = dtr_state = 0;
   /* Set Application Buffers */
   USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
@@ -169,6 +177,10 @@ static int8_t CDC_Init_FS(void)
 static int8_t CDC_DeInit_FS(void)
 {
   /* USER CODE BEGIN 4 */
+  rx_pending_buffer = NULL;
+  rx_pending_length = 0;
+  rx_paused = dtr_state = 0;
+  control_transport_usb_reset();
 #if USB_DIAG_ENABLE
   ++usb_diag.usb_deinits;
 #endif
@@ -236,7 +248,17 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
     break;
 
     case CDC_SET_CONTROL_LINE_STATE:
-
+    {
+      uint8_t next = (uint8_t)(((USBD_SetupReqTypedef *)pbuf)->wValue & 1U);
+      if (next != dtr_state) {
+        dtr_state = next;
+        control_transport_usb_reset();
+        rx_pending_buffer = NULL;
+        rx_pending_length = 0;
+        rx_paused = 1;
+        CDC_Receive_Resume_FS();
+      }
+    }
     break;
 
     case CDC_SEND_BREAK:
@@ -269,9 +291,12 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-  control_transport_usb_rx(Buf, *Len);
-  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, Buf);
-  USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+  if (!control_transport_usb_rx(Buf, *Len)) {
+    rx_pending_buffer = Buf;
+    rx_pending_length = (uint16_t)*Len;
+  }
+  rx_paused = 1;
+  CDC_Receive_Resume_FS();
   return USBD_OK;
   /* USER CODE END 6 */
 }
@@ -291,18 +316,38 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
 {
   uint8_t result = USBD_OK;
   /* USER CODE BEGIN 7 */
-  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
-  if (hUsbDeviceFS.dev_state != USBD_STATE_CONFIGURED || hcdc == NULL) { return USBD_FAIL; }
-  if (hcdc->TxState != 0){
-    return USBD_BUSY;
+  uint32_t mask = __get_PRIMASK();
+  USBD_CDC_HandleTypeDef *hcdc;
+  __disable_irq();
+  hcdc = (USBD_CDC_HandleTypeDef *)hUsbDeviceFS.pClassData;
+  if (hUsbDeviceFS.dev_state != USBD_STATE_CONFIGURED || hcdc == NULL) { result = USBD_FAIL; }
+  else if (hcdc->TxState != 0) { result = USBD_BUSY; }
+  else {
+    USBD_CDC_SetTxBuffer(&hUsbDeviceFS, Buf, Len);
+    result = USBD_CDC_TransmitPacket(&hUsbDeviceFS);
   }
-  USBD_CDC_SetTxBuffer(&hUsbDeviceFS, Buf, Len);
-  result = USBD_CDC_TransmitPacket(&hUsbDeviceFS);
+  __set_PRIMASK(mask);
   /* USER CODE END 7 */
   return result;
 }
-
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
+void CDC_Receive_Resume_FS(void)
+{
+  uint32_t mask = __get_PRIMASK();
+  __disable_irq();
+  if (rx_paused && hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED && hUsbDeviceFS.pClassData != NULL) {
+    if (rx_pending_length != 0 && control_transport_usb_space() >= rx_pending_length) {
+      (void)control_transport_usb_rx(rx_pending_buffer, rx_pending_length);
+      rx_pending_length = 0;
+      rx_pending_buffer = NULL;
+    }
+    if (rx_pending_length == 0 && control_transport_usb_space() >= CDC_DATA_FS_MAX_PACKET_SIZE) {
+      USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
+      if (USBD_CDC_ReceivePacket(&hUsbDeviceFS) == USBD_OK) { rx_paused = 0; }
+    }
+  }
+  __set_PRIMASK(mask);
+}
 
 /* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 

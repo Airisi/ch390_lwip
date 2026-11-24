@@ -11,236 +11,239 @@
  ******************************************************************************/
 
 #include "tcp_echo.h"
-#include "lwip/opt.h"
-#include "lwip/debug.h"
-#include "lwip/stats.h"
+#include "control_transport.h"
+#include "netif/ethernetif.h"
 #include "lwip/tcp.h"
-#include "lwip/timeouts.h"
+#include "lwip/mem.h"
+#include "lwip/sys.h"
+#include <string.h>
 
-#if LWIP_TCP && LWIP_CALLBACK_API
+/* Each connection can own its entire advertised window without retaining
+   PBUF_POOL buffers. ACKs must remain receivable under TX backpressure. */
+#define RX_CAPACITY TCP_WND
+#define RETRY_MS 1000U
+#define WORK_BUDGET 4U
+#if TCP_WND > 65535 || LWIP_WND_SCALE
+#error This bounded receive queue requires an unscaled TCP window
+#endif
 
+typedef struct Peer {
+    struct Peer *next;
+    struct tcp_pcb *pcb;
+    uint16_t head, tail, count;
+    uint8_t frame[8], used, closing, outgoing;
+    uint8_t rx[RX_CAPACITY];
+} Peer;
 
-uint8_t tcp_recv_arr[8]={0};      //数据接收缓冲区
-uint8_t tcp_recv_flag=0;
-    
-//static int validate_data_integrity(void *data, u16_t len);
-/*********************** TCP Server ***********************/
-static struct tcp_pcb *tcp_server_pcb;
+uint8_t tcp_recv_arr[8], tcp_recv_flag;
+static Peer *peers, *client;
+static struct tcp_pcb *listener;
+static uint32_t client_retry_at, listener_retry_at;
+static uint8_t client_retry, listener_retry;
 
-/**
- * @brief Send back the received data
- */
-static err_t
-tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
+static int due(uint32_t now, uint32_t deadline)
 {
-    if (p != NULL)
-    {
-      err_t err;
-      tcp_recved(tpcb, p->tot_len);          //TCP 接收数据
-      // 过滤条件1：检查数据长度，只处理长度恰好为8字节的数据
-     if (p->tot_len != 8)                  
-    {
-        pbuf_free(p);
-        return ERR_OK;
-    }
-     // 过滤条件2：检查数据内容（示例：第一个字节必须为0xFE）
-     u8_t first_byte = *((u8_t *)p->payload);
-     if (first_byte != 0xFE) 
-     {     
-       pbuf_free(p);
-       return ERR_OK;
-      }
-     else
-     {
-       pbuf_copy_partial(p, tcp_recv_arr, sizeof(tcp_recv_arr), 0);
-       tcp_recv_flag=1;  
-     }
-
-    //数据返回
-   do{
-        err = tcp_write(tpcb, p->payload, p->tot_len, 1);
-     }while(err != ERR_OK);
-        pbuf_free(p);
-        return ERR_OK;
-    }
-    else
-    {
-        /* Peer FIN: release this connection through the lwIP close handshake.
-           Returning ERR_BUF here leaves the PCB permanently in CLOSE_WAIT. */
-        return tcp_close(tpcb);
-    }
-
-//   client_context_t *ctx = (client_context_t *)arg;
-//    
-//    if (p == NULL) {
-//        // 连接已关闭
-//        printf("Client disconnected.\n");
-//        if (ctx != NULL) {
-//            free(ctx);
-//            tcp_arg(tpcb, NULL);
-//        }
-//        return ERR_OK;
-//    }
-//    tcp_recved(tpcb, p->tot_len);
-//    // 过滤条件1：检查数据长度，只处理长度恰好为8字节的数据
-//    if (p->tot_len != 8) 
-//    {
-////    printf("Filtered: Packet length %d != 8, dropped.\n", p->tot_len);
-//        pbuf_free(p);
-//        return ERR_OK;
-//     }
-
-//    // 过滤条件2：检查数据内容（示例：第一个字节必须为0xFE）
-//    u8_t first_byte = *((u8_t *)p->payload);
-//    if (first_byte != 0xFE) {
-//   //     printf("Filtered: Packet header 0x%02X != 0xAA, dropped.\n", first_byte);
-//        pbuf_free(p);
-//        return ERR_OK;
-//    }
-
-//    // 过滤条件3：检查数据校验和（可选）
-//    if (!validate_data_integrity(p->payload, p->tot_len))
-//    {
-// //       printf("Filtered: Data integrity check failed.\n");
-//        pbuf_free(p);
-//        return ERR_OK;
-//    }
-
-//    // 所有过滤条件通过，将数据拷贝到自定义数组arr中
-//    u16_t copied_len = pbuf_copy_partial(p, arr, sizeof(arr), 0);
-//    
-////    printf("Data received and stored in arr: ");
-////    for(int i = 0; i < copied_len; i++) {
-////        printf("%02X ", arr[i]);
-////    }
-////    printf("\n");
-//    
-//    // 标记数据已接收
-//    if (ctx != NULL) 
-//    {
-//    //    ctx->data_ready = 1;
-//        ctx->data_length = copied_len;
-//        tcp_recv_flag= 1;
-//        
-//    }
-
-//    // 重要：通知协议栈数据已处理，更新接收窗口
-////    tcp_recved(tpcb, p->tot_len);
-//    pbuf_free(p);
-//    
-//    return ERR_OK;
+    return (int32_t)(now - deadline) >= 0;
 }
-
-// 数据完整性校验函数（可选）
-//static int validate_data_integrity(void *data, u16_t len)
-//{
-//    // 这里可以实现CRC校验、校验和等验证逻辑
-//    // 示例：简单的奇偶校验
-//    u8_t *bytes = (u8_t *)data;
-//    u8_t parity = 0;
-//    for(int i = 0; i < len; i++) {
-//        parity ^= bytes[i];
-//    }
-//    return (parity == 0); // 示例条件
-//}
-   
-
-
-/**
- * @brief Accept connection
- */
-static err_t 
- tcp_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
+static void retry_client(void)
 {
-    tcp_recv(newpcb, tcp_server_recv);
+    client_retry_at = sys_now() + RETRY_MS;
+    client_retry = 1;
+}
+static void release_peer(Peer *peer)
+{
+    Peer **link = &peers;
+    while (*link != NULL && *link != peer) { link = &(*link)->next; }
+    if (*link == peer) { *link = peer->next; }
+    if (client == peer) { client = NULL; retry_client(); }
+    mem_free(peer);
+}
+static void peer_error(void *arg, err_t error)
+{
+    (void)error;
+    release_peer((Peer *)arg); /* lwIP has already freed the PCB. */
+}
+static void abort_peer(Peer *peer)
+{
+    /* The error callback removes the peer and schedules outgoing retries. */
+    tcp_abort(peer->pcb);
+}
+static void close_peer(Peer *peer)
+{
+    struct tcp_pcb *pcb = peer->pcb;
+    err_t result;
+    /* A successfully closing PCB may outlive its application context. */
+    tcp_arg(pcb, NULL);
+    tcp_err(pcb, NULL);
+    tcp_recv(pcb, NULL);
+    result = tcp_close(pcb);
+    if (result == ERR_OK) { release_peer(peer); }
+    else {
+        tcp_arg(pcb, peer);
+        tcp_err(pcb, peer_error);
+        /* RX is already finished; foreground retries the close. */
+    }
+}
+static err_t receive_peer(void *arg, struct tcp_pcb *pcb, struct pbuf *packet, err_t error)
+{
+    Peer *peer = (Peer *)arg;
+    uint16_t offset = 0;
+    (void)pcb;
+    if (packet == NULL) { peer->closing = 1; return ERR_OK; }
+    if (error != ERR_OK || packet->tot_len > RX_CAPACITY - peer->count - peer->used) {
+        /* This cannot occur for an in-window packet. Never retain pool pbufs. */
+        pbuf_free(packet);
+        abort_peer(peer);
+        return ERR_ABRT;
+    }
+    while (offset < packet->tot_len) {
+        uint16_t amount = (uint16_t)(RX_CAPACITY - peer->head);
+        uint16_t remaining = (uint16_t)(packet->tot_len - offset);
+        if (amount > remaining) { amount = remaining; }
+        pbuf_copy_partial(packet, peer->rx + peer->head, amount, offset);
+        peer->head = (uint16_t)((peer->head + amount) % RX_CAPACITY);
+        peer->count += amount;
+        offset += amount;
+    }
+    pbuf_free(packet);
+    /* Window credit is returned only after foreground consumption. */
     return ERR_OK;
 }
+static Peer *attach_peer(struct tcp_pcb *pcb, uint8_t outgoing)
+{
+    Peer *peer = (Peer *)mem_malloc(sizeof(Peer));
+    if (peer == NULL) { return NULL; }
+    memset(peer, 0, sizeof(*peer));
+    peer->pcb = pcb;
+    peer->outgoing = outgoing;
+    peer->next = peers;
+    peers = peer;
+    tcp_arg(pcb, peer);
+    tcp_err(pcb, peer_error);
+    tcp_recv(pcb, receive_peer);
+    return peer;
+}
+static err_t accept_peer(void *arg, struct tcp_pcb *pcb, err_t error)
+{
+    (void)arg;
+    if (error != ERR_OK || attach_peer(pcb, 0) == NULL) {
+        tcp_abort(pcb);
+        return ERR_ABRT;
+    }
+    return ERR_OK;
+}
+static uint8_t take_byte(Peer *peer)
+{
+    uint8_t byte = peer->rx[peer->tail];
+    peer->tail = (uint16_t)((peer->tail + 1U) % RX_CAPACITY);
+    --peer->count;
+    return byte;
+}
+static void pump_peer(Peer *peer)
+{
+    unsigned work = 0;
+    struct tcp_pcb *pcb = peer->pcb;
+    if (pcb->state != ESTABLISHED && pcb->state != CLOSE_WAIT) { return; }
+    if (peer->outgoing) {
+        while (peer->count != 0 && work++ < WORK_BUDGET) {
+            uint16_t amount = (uint16_t)(RX_CAPACITY - peer->tail);
+            if (amount > peer->count) { amount = peer->count; }
+            if (amount > 64U) { amount = 64U; }
+            if (tcp_write(pcb, peer->rx + peer->tail, amount, TCP_WRITE_FLAG_COPY) != ERR_OK) { break; }
+            peer->tail = (uint16_t)((peer->tail + amount) % RX_CAPACITY);
+            peer->count -= amount;
+            tcp_recved(pcb, amount);
+        }
+    } else {
+        while (work < WORK_BUDGET) {
+            if (peer->used == 8U) {
+                if (peer->frame[7] == 0xFF) {
+                    if (tcp_write(pcb, peer->frame, 8, TCP_WRITE_FLAG_COPY) != ERR_OK) { break; }
+                    memcpy(tcp_recv_arr, peer->frame, 8);
+                    tcp_recv_flag = 1;
+                    tcp_recv_data_process();
+                    tcp_recv_flag = 0;
+                    tcp_recved(pcb, 8);
+                    peer->used = 0;
+                    ++work;
+                } else {
+                    uint8_t next = 1;
+                    while (next < 8U && peer->frame[next] != 0xFE) { ++next; }
+                    peer->used = (uint8_t)(8U - next);
+                    memmove(peer->frame, peer->frame + next, peer->used);
+                    tcp_recved(pcb, next);
+                }
+            }
+            if (peer->count == 0) { break; }
+            {
+                uint8_t byte = take_byte(peer);
+                if (peer->used != 0 || byte == 0xFE) { peer->frame[peer->used++] = byte; }
+                else { tcp_recved(pcb, 1); }
+            }
+        }
+    }
+    (void)tcp_output(pcb);
+    if (peer->closing && peer->count == 0 && peer->used < 8U) {
+        /* Discard an incomplete final frame, while preserving complete ones. */
+        if (peer->used != 0) { tcp_recved(pcb, peer->used); peer->used = 0; }
+        close_peer(peer);
+    }
+}
 
-/**
- * @brief Initialize TCP server
- *        Local port: 2300
- */
 void tcp_server_init(void)
 {
-    tcp_server_pcb = tcp_new_ip_type(IPADDR_TYPE_ANY);
-    tcp_bind(tcp_server_pcb, IP_ANY_TYPE, 23000);
-    tcp_server_pcb = tcp_listen(tcp_server_pcb);
-    tcp_accept(tcp_server_pcb, tcp_server_accept);
-}
-
-/*********************** TCP Client ***********************/
-static struct tcp_pcb *tcp_client_pcb;
-static void tcp_client_reconnect(void *arg)
-{
-    printf("Reconnect...\n");
-    tcp_client_init();
-}
-
-/**
- * @brief Send back the received data
- */
-static err_t
-tcp_client_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
-{
-    if (p != NULL)
-    {
-        tcp_recved(tpcb, p->tot_len);
-        tcp_write(tpcb, p->payload, p->tot_len, 1);
-        pbuf_free(p);
+    struct tcp_pcb *pcb, *listening;
+    if (listener != NULL) { return; }
+    listener_retry = 0;
+    pcb = tcp_new();
+    if (pcb != NULL) {
+        if (tcp_bind(pcb, IP_ADDR_ANY, 23000) == ERR_OK) {
+            listening = tcp_listen(pcb);
+            if (listening != NULL) {
+                listener = listening;
+                tcp_accept(listener, accept_peer);
+                return;
+            }
+        }
+        tcp_abort(pcb);
     }
-    else if (err == ERR_OK)
-    {
-        tcp_close(tpcb);
-        printf("Disconnected\r\n");
-        // Reconnect after 1 second
-        sys_timeout(1000, tcp_client_reconnect, NULL);
-    }
+    listener_retry_at = sys_now() + RETRY_MS;
+    listener_retry = 1;
+}
+static err_t connected(void *arg, struct tcp_pcb *pcb, err_t error)
+{
+    (void)pcb;
+    if (error != ERR_OK) { abort_peer((Peer *)arg); return ERR_ABRT; }
     return ERR_OK;
 }
-
-/**
- * @brief TCP error callback
- */
-static void tcp_client_error(void *arg, err_t err)
-{
-    printf("Connection abort\n");
-    // Reconnect after 1 second
-    sys_timeout(1000, tcp_client_reconnect, NULL);
-}
-
-/**
- * @brief TCP connect callback
- */
-static err_t tcp_client_connected(void *arg, struct tcp_pcb *pcb, err_t err)
-{
-    printf("Connected\r\n");
-    tcp_recv(pcb, tcp_client_recv);
-
-    return ERR_OK;
-}
-
-/**
- * @brief Initialize TCP client
- *        Server IP: 192.168.1.100, Port: 2200
- */
 void tcp_client_init(void)
 {
-    extern struct netif ch390_netif;
-    ip4_addr_t server_ip;
-    uint16_t server_port = 2200;
-    IP4_ADDR(&server_ip, 192, 168, 1, 100);
-
-    tcp_client_pcb = tcp_new();
-    if (tcp_client_pcb == NULL)
-    {
-        printf("tcp_new error\n");
-        return;
-    }
-
-    tcp_bind(tcp_client_pcb, IP_ANY_TYPE, 0);
-    tcp_err(tcp_client_pcb, tcp_client_error);
-    tcp_connect(tcp_client_pcb, (const ip_addr_t *)&server_ip,
-                server_port, tcp_client_connected);
+    struct tcp_pcb *pcb;
+    ip_addr_t address;
+    Peer *peer;
+    client_retry = 0;
+    if (client != NULL) { return; }
+    if (!netif_is_up(&ch390_netif) || !netif_is_link_up(&ch390_netif) ||
+        ip4_addr_isany_val(*netif_ip4_addr(&ch390_netif))) { retry_client(); return; }
+    pcb = tcp_new();
+    if (pcb == NULL) { retry_client(); return; }
+    if (tcp_bind(pcb, IP_ADDR_ANY, 0) != ERR_OK) { tcp_abort(pcb); retry_client(); return; }
+    peer = attach_peer(pcb, 1);
+    if (peer == NULL) { tcp_abort(pcb); retry_client(); return; }
+    client = peer;
+    IP_ADDR4(&address, 192, 168, 1, 100);
+    if (tcp_connect(pcb, &address, 2200, connected) != ERR_OK) { abort_peer(peer); }
 }
-
-#endif /* LWIP_TCP && LWIP_CALLBACK_API */
+void tcp_app_poll(void)
+{
+    Peer *peer = peers;
+    uint32_t now;
+    while (peer != NULL) {
+        Peer *next = peer->next;
+        pump_peer(peer);
+        peer = next;
+    }
+    now = sys_now();
+    if (listener_retry && due(now, listener_retry_at)) { tcp_server_init(); }
+    if (client_retry && due(now, client_retry_at)) { tcp_client_init(); }
+}

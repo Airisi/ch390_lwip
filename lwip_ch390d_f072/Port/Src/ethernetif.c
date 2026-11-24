@@ -43,114 +43,46 @@
  * something that better describes your network interface.
  */
 
-#include "lwip/opt.h"
-
-#include "lwip/def.h"
+#include "main.h"
+#include "CH390_Interface.h"
+#include "usb_diag.h"
 #include "lwip/init.h"
-#include "lwip/mem.h"
-#include "lwip/pbuf.h"
-#include "lwip/stats.h"
-#include "lwip/snmp.h"
-#include "lwip/ethip6.h"
 #include "lwip/etharp.h"
-#include "netif/ppp/pppoe.h"
+#include "lwip/pbuf.h"
 #include "netif/ethernet.h"
 #include "netif/ethernetif.h"
+#include <string.h>
 
-#include "CH390_Interface.h"
-#include "stm32f0xx_hal.h"
-#include "usb_diag.h"
-
-
-/* Define those to better describe your network interface. */
-#define IFNAME0 'e'
-#define IFNAME1 'n'
-
-
-struct netif ch390_netif;
-
-/* Forward declarations. */
-void ethernetif_input(struct netif *netif);
-
-/**
- * In this function, the hardware should be initialized.
- * Called from ethernetif_init().
- *
- * @param netif the already initialized lwip network interface structure
- *        for this ethernetif
- */
-static void low_level_init(struct netif *netif)
-{
-    //   struct ethernetif *ethernetif = netif->state;
-    ch390_default_config();
-    /* PD8 is wired as a high-active interrupt input on this board. */
-    ch390_int_pin_config(INCR_TYPE_PP, INCR_POL_H);
-
-    /* set MAC hardware address length */
-    netif->hwaddr_len = ETHARP_HWADDR_LEN;
-
-    /* set MAC hardware address */
-    ch390_get_mac(netif->hwaddr);
-
-    /* maximum transfer unit */
-    netif->mtu = 1500;
-
-    /* device capabilities */
-    /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
-    netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
-
-#if LWIP_IPV6 && LWIP_IPV6_MLD
-    /*
-     * For hardware/netifs that implement MAC filtering.
-     * All-nodes link-local is handled by default, so we must let the hardware know
-     * to allow multicast packets in.
-     * Should set mld_mac_filter previously. */
-    if (netif->mld_mac_filter != NULL)
-    {
-        ip6_addr_t ip6_allnodes_ll;
-        ip6_addr_set_allnodes_linklocal(&ip6_allnodes_ll);
-        netif->mld_mac_filter(netif, &ip6_allnodes_ll, NETIF_ADD_MAC_FILTER);
-    }
-#endif /* LWIP_IPV6 && LWIP_IPV6_MLD */
-
-    /* Do whatever else is needed to initialize interface. */
-}
-
-/**
- * This function should do the actual transmission of the packet. The packet is
- * contained in the pbuf that is passed to the function. This pbuf
- * might be chained.
- *
- * @param netif the lwip network interface structure for this ethernetif
- * @param p the MAC packet to send (e.g. IP packet including MAC addresses and type)
- * @return ERR_OK if the packet could be sent
- *         an err_t value if the packet couldn't be sent
- *
- * @note Returning ERR_MEM here if a DMA queue of your MAC is full can lead to
- *       strange results. You might consider waiting for space in the DMA queue
- *       to become available since the stack doesn't retry to send a packet
- *       dropped because of memory failure (except for the TCP timers).
- */
-
-/* Limit only the hardware TXREQ wait; SPI HAL has its own timeout. */
 #define CH390_TX_WAIT_MS 100U
-static err_t low_level_output(struct netif *netif, struct pbuf *p)
+struct netif ch390_netif;
+static struct ethernetif ethernet_state;
+static uint8_t hardware_ready;
+
+static void reset_rx_fifo(void)
 {
-    struct pbuf *q;
-    err_t result = ERR_OK;
+    ch390_write_reg(CH390_RCR, 0);
+    ch390_write_reg(CH390_MPTRCR, 0x01);
+    ch390_write_reg(CH390_MRRH, 0x0c);
+    HAL_Delay(1);
+    ch390_write_reg(CH390_RCR, RCR_RXEN | RCR_DIS_CRC);
+    ethernet_state.rx_len = 0;
+}
+static err_t low_level_output(struct netif *netif, struct pbuf *packet)
+{
+    struct pbuf *part;
+    uint8_t value;
     uint32_t wait_start;
-#if ETH_PAD_SIZE
-    uint8_t padding_removed = 0;
-#endif
+    err_t result = ERR_OK;
 #if USB_DIAG_ENABLE
-    uint32_t parent_phase = usb_diag.phase;
-    uint32_t output_start = HAL_GetTick();
+    uint32_t parent_phase = usb_diag.phase, output_start = HAL_GetTick();
     ++usb_diag.net_tx_calls;
 #endif
     (void)netif;
     USB_DIAG_STAGE(USB_DIAG_NET_OUTPUT);
-    /* The stack may still think the interface is up during a link transition. */
-    if ((ch390_read_reg(CH390_NSR) & NSR_LINKST) == 0) {
+    if (!hardware_ready || ch390_get_error() != CH390_ERROR_NONE) { result = ERR_IF; goto done; }
+    value = ch390_read_reg(CH390_NSR);
+    if (ch390_get_error() != CH390_ERROR_NONE) { result = ERR_IF; goto done; }
+    if ((value & NSR_LINKST) == 0) {
 #if USB_DIAG_ENABLE
         ++usb_diag.net_tx_link_drops;
 #endif
@@ -160,19 +92,23 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
     wait_start = HAL_GetTick();
     USB_DIAG_STAGE(USB_DIAG_NET_TX_WAIT);
     for (;;) {
-        uint8_t tcr = ch390_read_reg(CH390_TCR);
+        value = ch390_read_reg(CH390_TCR);
 #if USB_DIAG_ENABLE
-        usb_diag.last_tcr = tcr;
+        usb_diag.last_tcr = value;
 #endif
-        if ((tcr & TCR_TXREQ) == 0) { break; }
+        if (ch390_get_error() != CH390_ERROR_NONE) { result = ERR_IF; break; }
+        if ((value & TCR_TXREQ) == 0) { break; }
         if ((uint32_t)(HAL_GetTick() - wait_start) >= CH390_TX_WAIT_MS) {
 #if USB_DIAG_ENABLE
             ++usb_diag.net_tx_timeouts;
 #endif
+            ch390_set_error(CH390_ERROR_BUSY);
             result = ERR_TIMEOUT;
             break;
         }
-        if ((ch390_read_reg(CH390_NSR) & NSR_LINKST) == 0) {
+        value = ch390_read_reg(CH390_NSR);
+        if (ch390_get_error() != CH390_ERROR_NONE) { result = ERR_IF; break; }
+        if ((value & NSR_LINKST) == 0) {
 #if USB_DIAG_ENABLE
             ++usb_diag.net_tx_link_drops;
 #endif
@@ -183,310 +119,99 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
     USB_DIAG_END(net_tx_wait_max_ms, wait_start);
     if (result != ERR_OK) { goto done; }
     USB_DIAG_STAGE(USB_DIAG_NET_OUTPUT);
-#if ETH_PAD_SIZE
-    pbuf_remove_header(p, ETH_PAD_SIZE);
-    padding_removed = 1;
-#endif
-    /* Do not overwrite TX SRAM until the preceding frame has finished. */
-    for (q = p; q != NULL; q = q->next) { ch390_write_mem(q->payload, q->len); }
-    ch390_write_reg(CH390_TXPLL, p->tot_len & 0xff);
-    ch390_write_reg(CH390_TXPLH, (p->tot_len >> 8) & 0xff);
+    for (part = packet; part != NULL; part = part->next) { ch390_write_mem(part->payload, part->len); }
+    if (ch390_get_error() != CH390_ERROR_NONE) { result = ERR_IF; goto done; }
+    ch390_write_reg(CH390_TXPLL, (uint8_t)packet->tot_len);
+    ch390_write_reg(CH390_TXPLH, (uint8_t)(packet->tot_len >> 8));
     ch390_send_request();
-    LINK_STATS_INC(link.xmit);
+    if (ch390_get_error() != CH390_ERROR_NONE) { result = ERR_IF; }
 done:
-#if ETH_PAD_SIZE
-    if (padding_removed) { pbuf_add_header(p, ETH_PAD_SIZE); }
-#endif
     USB_DIAG_END(net_tx_max_ms, output_start);
 #if USB_DIAG_ENABLE
     usb_diag_stage(parent_phase);
 #endif
     return result;
 }
-/**
- * Should allocate a pbuf and transfer the bytes of the incoming
- * packet from the interface into the pbuf.
- *
- * @param netif the lwip network interface structure for this ethernetif
- * @return a pbuf filled with the received packet (including MAC header)
- *         NULL on memory error
- */
-static struct pbuf *low_level_input(struct netif *netif)
-{
-    struct ethernetif *ethernetif = netif->state;
-    struct pbuf *p, *q;
-    u16_t len;
-
-    u8_t rx_ready;
-    u8_t ReceiveData[4];
-
-    ch390_read_reg(CH390_MRCMDX);
-    rx_ready = ch390_read_reg(CH390_MRCMDX);
-
-    if (rx_ready & CH390_PKT_ERR)
-    {
-        // Reset RX FIFO pointer
-        ch390_write_reg(CH390_RCR, 0);        //RX disable
-        ch390_write_reg(CH390_MPTRCR, 0x01);  //Reset RX FIFO pointer
-        ch390_write_reg(CH390_MRRH, 0x0c);
-        HAL_Delay(1);
-        ch390_write_reg(CH390_RCR, RCR_RXEN | RCR_DIS_CRC); //RX Enable
-        LINK_STATS_INC(link.drop);
-        ethernetif->rx_len = 0;
-        return NULL;
-    }
-    if (!(rx_ready & CH390_PKT_RDY))
-    {
-        ethernetif->rx_len = 0;
-        return NULL;
-    }
-    ch390_read_mem(ReceiveData, 4);
-    ethernetif->rx_status = ReceiveData[1];
-    /* Ignore the last 4 bytes CRC */
-    ethernetif->rx_len = (ReceiveData[2] | (ReceiveData[3] << 8)) - 4;
-    /* Obtain the size of the packet and put it into the "len"
-       variable. */
-    len = ethernetif->rx_len;
-#if ETH_PAD_SIZE
-    len += ETH_PAD_SIZE; /* allow room for Ethernet padding */
-#endif
-
-    /* We allocate a pbuf chain of pbufs from the pool. */
-    p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
-
-    if (p != NULL)
-    {
-#if ETH_PAD_SIZE
-        pbuf_remove_header(p, ETH_PAD_SIZE); /* drop the padding word */
-#endif
-
-        /* We iterate over the pbuf chain until we have read the entire
-         * packet into the pbuf. */
-        for (q = p; q != NULL; q = q->next)
-        {
-            /* Read enough bytes to fill this pbuf in the chain. The
-             * available data in the pbuf is given by the q->len
-             * variable.
-             * This does not necessarily have to be a memcpy, you can also preallocate
-             * pbufs for a DMA-enabled MAC and after receiving truncate it to the
-             * actually received size. In this case, ensure the tot_len member of the
-             * pbuf is the sum of the chained pbuf len members.
-             */
-            ch390_read_mem(q->payload, q->len);
-           
-        }
-
-#if ETH_PAD_SIZE
-        pbuf_add_header(p, ETH_PAD_SIZE); /* reclaim the padding word */
-#endif
-        /* Skip last 4 bytes CRC */
-        ch390_drop_packet(4);
-        LINK_STATS_INC(link.recv);
-    }
-    else
-    {
-        ch390_drop_packet(len + 4);
-        LINK_STATS_INC(link.memerr);
-        LINK_STATS_INC(link.drop);
-        MIB2_STATS_NETIF_INC(netif, ifindiscards);
-    }
-
-    return p;
-}
-
-/**
- * This function should be called when a packet is ready to be read
- * from the interface. It uses the function low_level_input() that
- * should handle the actual reception of bytes from the network
- * interface. Then the type of the received packet is determined and
- * the appropriate input function is called.
- *
- * @param netif the lwip network interface structure for this ethernetif
- */
 void ethernetif_input(struct netif *netif)
 {
-    // struct ethernetif *ethernetif;
-    // struct eth_hdr *ethhdr;
-    struct pbuf *p;
-
-    // ethernetif = netif->state;
-
-    /* move received packet into a new pbuf */
-    p = low_level_input(netif);
-    /* if no packet could be read, silently ignore this */
-    if (p != NULL)
-    {
-        /* pass all packets to ethernet_input, which decides what packets it supports */
-        if (netif->input(p, netif) != ERR_OK)
-        {
-            LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
-            pbuf_free(p);
-            p = NULL;
-        }
-    }
+    struct pbuf *packet, *part;
+    uint8_t ready, header[4];
+    uint16_t wire_length;
+    ethernet_state.rx_len = 0;
+    if (!hardware_ready || ch390_get_error() != CH390_ERROR_NONE) { return; }
+    (void)ch390_read_reg(CH390_MRCMDX);
+    ready = ch390_read_reg(CH390_MRCMDX);
+    if (ch390_get_error() != CH390_ERROR_NONE) { return; }
+    if (ready & CH390_PKT_ERR) { reset_rx_fifo(); return; }
+    if (!(ready & CH390_PKT_RDY)) { return; }
+    ch390_read_mem(header, sizeof(header));
+    if (ch390_get_error() != CH390_ERROR_NONE) { return; }
+    wire_length = (uint16_t)header[2] | ((uint16_t)header[3] << 8);
+    if (wire_length < 18U || wire_length > CH390_PKT_MAX) { reset_rx_fifo(); return; }
+    ethernet_state.rx_len = wire_length - 4U;
+    ethernet_state.rx_status = header[1];
+    if (header[1] & 0x3FU) { ch390_drop_packet(wire_length); return; }
+    packet = pbuf_alloc(PBUF_RAW, ethernet_state.rx_len, PBUF_POOL);
+    if (packet == NULL) { ch390_drop_packet(wire_length); return; }
+    for (part = packet; part != NULL; part = part->next) { ch390_read_mem(part->payload, part->len); }
+    ch390_drop_packet(4);
+    if (ch390_get_error() != CH390_ERROR_NONE) { pbuf_free(packet); return; }
+    if (netif->input(packet, netif) != ERR_OK) { pbuf_free(packet); }
 }
-
-/**
- * Should be called at the beginning of the program to set up the
- * network interface. It calls the function low_level_init() to do the
- * actual setup of the hardware.
- *
- * This function should be passed as a parameter to netif_add().
- *
- * @param netif the lwip network interface structure for this ethernetif
- * @return ERR_OK if the loopif is initialized
- *         ERR_MEM if private data couldn't be allocated
- *         any other err_t on error
- */
 err_t ethernetif_init(struct netif *netif)
 {
-    struct ethernetif *ethernetif;
-
-    LWIP_ASSERT("netif != NULL", (netif != NULL));
-
-    ethernetif = mem_malloc(sizeof(struct ethernetif));
-    if (ethernetif == NULL)
-    {
-        LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_init: out of memory\n"));
-        return ERR_MEM;
-    }
-
-#if LWIP_NETIF_HOSTNAME
-    /* Initialize interface hostname */
-    netif->hostname = "lwip";
-#endif /* LWIP_NETIF_HOSTNAME */
-
-    /*
-     * Initialize the snmp variables and counters inside the struct netif.
-     * The last argument should be replaced with your link speed, in units
-     * of bits per second.
-     */
-    MIB2_INIT_NETIF(netif, snmp_ifType_ethernet_csmacd, 100);
-
-    netif->state = ethernetif;
-    netif->name[0] = IFNAME0;
-    netif->name[1] = IFNAME1;
-    /* We directly use etharp_output() here to save a function call.
-     * You can instead declare your own function an call etharp_output()
-     * from it if you have to do some checks before sending (e.g. if link
-     * is available...) */
-#if LWIP_IPV4
+    netif->state = &ethernet_state;
+    netif->name[0] = 'e'; netif->name[1] = 'n';
+    netif->hwaddr_len = ETH_HWADDR_LEN;
+    netif->mtu = 1500;
+    netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
     netif->output = etharp_output;
-#endif /* LWIP_IPV4 */
-#if LWIP_IPV6
-    netif->output_ip6 = ethip6_output;
-#endif /* LWIP_IPV6 */
     netif->linkoutput = low_level_output;
-
-    // ethernetif->ethaddr = (struct eth_addr *)&(netif->hwaddr[0]);
-
-    /* initialize the hardware */
-    low_level_init(netif);
-
+    memset(netif->hwaddr, 0, ETH_HWADDR_LEN);
     return ERR_OK;
 }
-
-/**
- * Initialize LwIP with ch390_netif
- */
-void init_lwip_netif(const ip4_addr_t *ipaddr, const ip4_addr_t *netmask, const ip4_addr_t *gw)
+void ethernetif_stop(struct netif *netif)
 {
-    /* Initialize the LwIP stack without RTOS */
+    hardware_ready = 0;
+    ethernet_state.rx_len = 0;
+    netif_set_link_down(netif);
+}
+err_t ethernetif_start(struct netif *netif)
+{
+    uint8_t mac[ETH_HWADDR_LEN], any = 0;
+    uint16_t vendor, product;
+    unsigned i;
+    hardware_ready = 0;
+    ch390_clear_error();
+    ch390_software_reset();
+    if (ch390_get_error() != CH390_ERROR_NONE) { return ERR_IF; }
+    HAL_Delay(2);
+    vendor = ch390_get_vendor_id(); product = ch390_get_product_id();
+#if USB_DIAG_ENABLE
+    usb_diag.vendor = vendor; usb_diag.product = product;
+#endif
+    if (ch390_get_error() != CH390_ERROR_NONE) { return ERR_IF; }
+    if (vendor == 0 || vendor == 0xFFFF || product == 0 || product == 0xFFFF) {
+        ch390_set_error(CH390_ERROR_ID); return ERR_IF;
+    }
+    ch390_default_config();
+    if (ch390_get_error() != CH390_ERROR_NONE) { return ERR_IF; }
+    ch390_int_pin_config(INCR_TYPE_PP, INCR_POL_H);
+    ch390_get_mac(mac);
+    if (ch390_get_error() != CH390_ERROR_NONE) { return ERR_IF; }
+    for (i = 0; i < sizeof(mac); ++i) { any |= mac[i]; }
+    if (any == 0 || (mac[0] & 1U)) { ch390_set_error(CH390_ERROR_MAC); return ERR_IF; }
+    memcpy(netif->hwaddr, mac, sizeof(mac));
+    hardware_ready = 1;
+    return ERR_OK;
+}
+void init_lwip_netif(const ip4_addr_t *ip, const ip4_addr_t *mask, const ip4_addr_t *gateway)
+{
     lwip_init();
-
-    /* add the network interface (IPv4/IPv6) without RTOS */
-   netif_add(&ch390_netif, ipaddr, netmask, gw, NULL,
-              &ethernetif_init, &ethernet_input);
-
-    /* Registers the default network interface */
+    if (netif_add(&ch390_netif, ip, mask, gateway, NULL, ethernetif_init, ethernet_input) == NULL) { Error_Handler(); }
     netif_set_default(&ch390_netif);
-    netif_set_link_up(&ch390_netif);
+    netif_set_link_down(&ch390_netif);
     netif_set_up(&ch390_netif);
 }
-
-// 全局变量
-static uint32_t lwip_tick_base = 0;
-static uint16_t last_ssr = 0xFFFF;
-static const uint32_t SYNC_PREDIV = 319;  // 与初始化一致
-
-// 获取RTC亚秒计数器
-static inline uint16_t rtc_get_ssr(void)
-{
-    return (uint16_t)(RTC->SSR);
-}
-
-// 获取当前毫秒数（用于sys_now）
-u32_t sys_now(void)
-{
-    uint16_t current_ssr = rtc_get_ssr();
-    uint16_t ssr_diff;
-    uint32_t current_ms;
-    
-    // SSR寄存器是递减计数器，范围0-255
-    // 32768Hz / (127+1) / (255+1) = 1Hz (1秒)
-    // SSR每255-0递减一次，约7.8ms
-    
-    // 计算差值（处理翻转）
-    if (current_ssr <= last_ssr)
-    {
-        ssr_diff = last_ssr - current_ssr;
-    }
-    else
-    {
-        // SSR从0翻转到255
-        ssr_diff = (SYNC_PREDIV + 1) + last_ssr - current_ssr;
-    }
-    
-    // 转换为毫秒
-    // 每个SSR计数 = 1000ms / 256 ≈ 3.90625ms
-    // 使用整数运算提高效率
-    current_ms = (ssr_diff * 1000) / (SYNC_PREDIV + 1);
-    
-    // 更新累计tick
-    lwip_tick_base += current_ms;
-    last_ssr = current_ssr;
-    
-    return lwip_tick_base;
-}
-// 更精确的版本，结合秒和亚秒
-uint32_t sys_now_precise(void)
-{
-    static uint32_t last_seconds = 0;
-    static uint32_t base_seconds = 0;
-    RTC_TimeTypeDef sTime = {0};
-    volatile  uint32_t  current_seconds, current_ms;
-    uint16_t current_ssr;
-    uint32_t ssr_ms;
-    
-    // 1. 直接读取RTC寄存器（避免函数调用开销）
-    uint32_t tr = RTC->TR;
-    uint32_t dr = RTC->DR;
-    
-    // 2. 解析时间
-    sTime.Hours = (uint8_t)((tr & (RTC_TR_HT | RTC_TR_HU)) >> 16);
-    sTime.Minutes = (uint8_t)((tr & (RTC_TR_MNT | RTC_TR_MNU)) >> 8);
-    sTime.Seconds = (uint8_t)(tr & (RTC_TR_ST | RTC_TR_SU));
-    
-    // 3. 获取亚秒
-    current_ssr = (uint16_t)(RTC->SSR);
-    
-    // 4. 计算当前秒数
-    current_seconds = sTime.Hours * 3600 + sTime.Minutes * 60 + sTime.Seconds;
-    
-    // 5. 处理日期切换
-    if (current_seconds < last_seconds)
-    {
-        base_seconds += 86400;  // 一天86400秒
-    }
-    last_seconds = current_seconds;
-    
-    // 6. 计算亚秒对应的毫秒
-    // SSR: 255->0, 每个计数=1000/256≈3.90625ms
-    ssr_ms = ((SYNC_PREDIV - current_ssr) * 1000) / (SYNC_PREDIV + 1);
-    
-    // 7. 总毫秒数
-    return ((base_seconds + current_seconds) * 1000) + ssr_ms;
-}
-
-
-
+u32_t sys_now(void) { return HAL_GetTick(); }
+uint32_t sys_now_precise(void) { return HAL_GetTick(); }

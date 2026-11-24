@@ -15,5 +15,6 @@
 
 void tcp_server_init(void);
 void tcp_client_init(void);
+void tcp_app_poll(void);
 
 #endif /* USER_APPS_TCP_ECHO_H_ */

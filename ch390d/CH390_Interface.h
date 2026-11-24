@@ -15,6 +15,11 @@
 //void ch390_gpio_init(void);
 
 
+enum { CH390_ERROR_NONE, CH390_ERROR_SPI, CH390_ERROR_BUSY, CH390_ERROR_ID, CH390_ERROR_MAC };
+uint8_t ch390_get_error(void);
+void ch390_clear_error(void);
+void ch390_set_error(uint8_t error);
+uint32_t ch390_get_tick(void);
 uint16_t ch390_get_int_pin(void);
 void ch390_delay_us(uint32_t time);
 void ch30_delay_ns(uint32_t ns);
