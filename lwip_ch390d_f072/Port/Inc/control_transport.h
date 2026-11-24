@@ -9,6 +9,7 @@ extern volatile uint8_t net_mode;
 void control_transport_usb_rx(const uint8_t *data, uint32_t length);
 void control_transport_poll(void);
 int control_transport_write(const uint8_t *data, uint16_t length);
+int control_transport_debug_write(const uint8_t *data, uint16_t length);
 void tcp_recv_data_process(void);
 void uart_recv_data_process(void);
 void send_net_mode_ack(void);

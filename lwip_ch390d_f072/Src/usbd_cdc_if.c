@@ -23,6 +23,7 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include "control_transport.h"
+#include "usb_diag.h"
 #include <string.h>
 /* USER CODE END INCLUDE */
 
@@ -151,6 +152,9 @@ USBD_CDC_ItfTypeDef USBD_Interface_fops_FS =
 static int8_t CDC_Init_FS(void)
 {
   /* USER CODE BEGIN 3 */
+#if USB_DIAG_ENABLE
+  ++usb_diag.usb_inits;
+#endif
   /* Set Application Buffers */
   USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
@@ -165,6 +169,9 @@ static int8_t CDC_Init_FS(void)
 static int8_t CDC_DeInit_FS(void)
 {
   /* USER CODE BEGIN 4 */
+#if USB_DIAG_ENABLE
+  ++usb_diag.usb_deinits;
+#endif
   return (USBD_OK);
   /* USER CODE END 4 */
 }

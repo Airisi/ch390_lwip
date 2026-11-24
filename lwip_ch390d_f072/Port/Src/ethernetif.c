@@ -59,6 +59,7 @@
 
 #include "CH390_Interface.h"
 #include "stm32f0xx_hal.h"
+#include "usb_diag.h"
 
 
 /* Define those to better describe your network interface. */
@@ -131,36 +132,77 @@ static void low_level_init(struct netif *netif)
  *       dropped because of memory failure (except for the TCP timers).
  */
 
+/* Limit only the hardware TXREQ wait; SPI HAL has its own timeout. */
+#define CH390_TX_WAIT_MS 100U
 static err_t low_level_output(struct netif *netif, struct pbuf *p)
 {
-    // struct ethernetif *ethernetif = netif->state;
     struct pbuf *q;
-
+    err_t result = ERR_OK;
+    uint32_t wait_start;
 #if ETH_PAD_SIZE
-    pbuf_remove_header(p, ETH_PAD_SIZE); /* drop the padding word */
+    uint8_t padding_removed = 0;
 #endif
-
-    for (q = p; q != NULL; q = q->next)
-    {
-        /* Send the data from the pbuf to the interface, one pbuf at a
-           time. The size of the data in each pbuf is kept in the ->len
-           variable. */
-        ch390_write_mem(q->payload, q->len);
+#if USB_DIAG_ENABLE
+    uint32_t parent_phase = usb_diag.phase;
+    uint32_t output_start = HAL_GetTick();
+    ++usb_diag.net_tx_calls;
+#endif
+    (void)netif;
+    USB_DIAG_STAGE(USB_DIAG_NET_OUTPUT);
+    /* The stack may still think the interface is up during a link transition. */
+    if ((ch390_read_reg(CH390_NSR) & NSR_LINKST) == 0) {
+#if USB_DIAG_ENABLE
+        ++usb_diag.net_tx_link_drops;
+#endif
+        result = ERR_IF;
+        goto done;
     }
-
-    // Wait until last transmit complete
-    while(ch390_read_reg(CH390_TCR) & TCR_TXREQ);
-    // Set current packet length
+    wait_start = HAL_GetTick();
+    USB_DIAG_STAGE(USB_DIAG_NET_TX_WAIT);
+    for (;;) {
+        uint8_t tcr = ch390_read_reg(CH390_TCR);
+#if USB_DIAG_ENABLE
+        usb_diag.last_tcr = tcr;
+#endif
+        if ((tcr & TCR_TXREQ) == 0) { break; }
+        if ((uint32_t)(HAL_GetTick() - wait_start) >= CH390_TX_WAIT_MS) {
+#if USB_DIAG_ENABLE
+            ++usb_diag.net_tx_timeouts;
+#endif
+            result = ERR_TIMEOUT;
+            break;
+        }
+        if ((ch390_read_reg(CH390_NSR) & NSR_LINKST) == 0) {
+#if USB_DIAG_ENABLE
+            ++usb_diag.net_tx_link_drops;
+#endif
+            result = ERR_IF;
+            break;
+        }
+    }
+    USB_DIAG_END(net_tx_wait_max_ms, wait_start);
+    if (result != ERR_OK) { goto done; }
+    USB_DIAG_STAGE(USB_DIAG_NET_OUTPUT);
+#if ETH_PAD_SIZE
+    pbuf_remove_header(p, ETH_PAD_SIZE);
+    padding_removed = 1;
+#endif
+    /* Do not overwrite TX SRAM until the preceding frame has finished. */
+    for (q = p; q != NULL; q = q->next) { ch390_write_mem(q->payload, q->len); }
     ch390_write_reg(CH390_TXPLL, p->tot_len & 0xff);
     ch390_write_reg(CH390_TXPLH, (p->tot_len >> 8) & 0xff);
-    // Issue transmit request
     ch390_send_request();
-
     LINK_STATS_INC(link.xmit);
-
-    return ERR_OK;
+done:
+#if ETH_PAD_SIZE
+    if (padding_removed) { pbuf_add_header(p, ETH_PAD_SIZE); }
+#endif
+    USB_DIAG_END(net_tx_max_ms, output_start);
+#if USB_DIAG_ENABLE
+    usb_diag_stage(parent_phase);
+#endif
+    return result;
 }
-
 /**
  * Should allocate a pbuf and transfer the bytes of the incoming
  * packet from the interface into the pbuf.

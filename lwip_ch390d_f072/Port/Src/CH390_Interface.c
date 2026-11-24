@@ -15,6 +15,7 @@
 #include "CH390_Interface.h"
 #include "delay.h"
 #include "spi.h"
+#include "usb_diag.h"
 /*
  * This file defines CH390 operation interface (Parallel
  * or SPI). User should implement one of them.
@@ -94,8 +95,16 @@ void ch390_delay_us(uint32_t us)
 
 static uint8_t ch390_spi_exchange_byte(uint8_t txdata)
 {    
-    uint8_t rereceive_data;
-    HAL_SPI_TransmitReceive(&hspi2,&txdata,&rereceive_data,1,1000);   
+    uint8_t rereceive_data = 0xFF;
+#if USB_DIAG_ENABLE
+    uint32_t started = HAL_GetTick();
+    HAL_StatusTypeDef status = HAL_SPI_TransmitReceive(&hspi2,&txdata,&rereceive_data,1,1000);
+    uint32_t elapsed = HAL_GetTick() - started;
+    if (elapsed > usb_diag.spi_max_ms) { usb_diag.spi_max_ms = elapsed; }
+    if (status != HAL_OK) { usb_diag.spi_status = (uint8_t)status; ++usb_diag.spi_errors; }
+#else
+    HAL_SPI_TransmitReceive(&hspi2,&txdata,&rereceive_data,1,1000);
+#endif
     return rereceive_data;
 }
 
@@ -408,6 +417,11 @@ uint8_t ch390_read_reg(uint8_t reg)
     ch390_spi_exchange_byte(reg | OPC_REG_R);
     spi_data = ch390_spi_dummy_read();
     ch390_cs(1); // CS = 1
+#if USB_DIAG_ENABLE
+    usb_diag.last_reg = reg;
+    usb_diag.last_value = spi_data;
+    if (reg == CH390_NSR) { usb_diag.nsr = spi_data; }
+#endif
     return spi_data;
 }
 

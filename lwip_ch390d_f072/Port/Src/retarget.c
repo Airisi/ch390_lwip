@@ -1,4 +1,8 @@
 #include <stdio.h>
+#include "retarget.h"
+#if USB_PRINTF_ENABLE
+#include "control_transport.h"
+#endif
 #if defined(__CC_ARM)
 #pragma import(__use_no_semihosting)
 struct __FILE { int handle; };
@@ -18,5 +22,13 @@ void _init(void) {}
 void _fini(void) {}
 #endif
 
-/* Do not interleave diagnostic text with the binary USB configuration frames. */
-int fputc(int value, FILE *stream) { (void)stream; return value; }
+/* USB uses the existing persistent TX queue; a full queue drops debug bytes. */
+int fputc(int value, FILE *stream)
+{
+    (void)stream;
+#if USB_PRINTF_ENABLE
+    uint8_t byte = (uint8_t)value;
+    (void)control_transport_debug_write(&byte, 1U);
+#endif
+    return value;
+}

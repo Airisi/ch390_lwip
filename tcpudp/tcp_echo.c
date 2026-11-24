@@ -65,7 +65,9 @@ tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
     }
     else
     {
-        return ERR_BUF;
+        /* Peer FIN: release this connection through the lwIP close handshake.
+           Returning ERR_BUF here leaves the PCB permanently in CLOSE_WAIT. */
+        return tcp_close(tpcb);
     }
 
 //   client_context_t *ctx = (client_context_t *)arg;
