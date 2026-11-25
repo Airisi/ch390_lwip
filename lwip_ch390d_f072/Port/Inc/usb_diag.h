@@ -40,3 +40,4 @@ void usb_diag_poll(void);
 #define USB_DIAG_END(field, name) ((void)0)
 #endif
 #endif
+

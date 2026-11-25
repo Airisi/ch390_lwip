@@ -215,3 +215,4 @@ void init_lwip_netif(const ip4_addr_t *ip, const ip4_addr_t *mask, const ip4_add
 }
 u32_t sys_now(void) { return HAL_GetTick(); }
 uint32_t sys_now_precise(void) { return HAL_GetTick(); }
+

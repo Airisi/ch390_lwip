@@ -22,447 +22,840 @@ void tcp_recv_data_process(void)
    {
      switch(tcp_recv_arr[1])
      {
-        case 1:                  
+       /*H1*/
+      case 1:                  
        if(tcp_recv_arr[2]==1)   
        {                                  /*打开继电器1*/
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_10,GPIO_PIN_SET);
        }
        else                                /*关闭继电器1*/ 
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,GPIO_PIN_RESET);
-       
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_10,GPIO_PIN_RESET);       
        }
-          break;
+        break;
        case 2:                          
          if(tcp_recv_arr[2]==1)   
        {                                     /*打开继电器2*/
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_12,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_9,GPIO_PIN_SET);
        }
        else                                   /*关闭继电器2*/ 
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_12,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_9,GPIO_PIN_RESET);
        
        }       
         break;
         case 3:                            
         if(tcp_recv_arr[2]==1)        
        {                                     /*打开继电器3*/ 
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_11,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器3*/ 
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_11,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,GPIO_PIN_RESET);
        
        }            
         break;
-        case 4:                              
+       case 4:                              
         if(tcp_recv_arr[2]==1)        
        {                                       /*打开继电器4*/ 
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_10,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_SET);
        }
        else                                /*关闭继电器4*/ 
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_10,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_RESET);
        
        }         
         break;
        case 5:    
         if(tcp_recv_arr[2]==1)               /*打开继电器5*/ 
        {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_9,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_SET);
        }
        else                                   /*关闭继电器5*/
        {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_9,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_RESET);
        
        }              
         break; 
         case 6:      
         if(tcp_recv_arr[2]==1)               /*打开继电器6*/ 
        {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_SET);
        }
        else                                   /*关闭继电器6*/
        {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,GPIO_PIN_RESET);
-       
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_RESET);       
        }             
         break;
-        case 7:    
+        /*H2*/
+       case 7:    
        if(tcp_recv_arr[2]==1)               /*打开继电器7*/ 
        {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,GPIO_PIN_SET);
        }
        else                                   /*关闭继电器7*/
        {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5,GPIO_PIN_RESET);
-       
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,GPIO_PIN_RESET);       
        }     
         break;
         case 8:     
         if(tcp_recv_arr[2]==1)               /*打开继电器8*/ 
        {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_SET);
        }
        else                                   /*关闭继电器8*/
        {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
        
        }     
         break;
         case 9:      
          if(tcp_recv_arr[2]==1)               /*打开继电器9*/ 
        {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器9*/
        {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
        
        }                  
-        break;
+       break;
         case 10:    
        if(tcp_recv_arr[2]==1)               /*打开继电器10*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_4,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器10*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_4,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
        
        }       
         break; 
         case 11:    
       if(tcp_recv_arr[2]==1)                /*打开继电器11*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_3,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器11*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_3,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
        
        }       
         break;
         case 12:     
        if(tcp_recv_arr[2]==1)                /*打开继电器12*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_11,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器12*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_11,GPIO_PIN_RESET);
        
        }           
         break;
+        /*H3*/
         case 13: 
-         if(tcp_recv_arr[2]==1)                /*打开继电器13*/ 
+        if(tcp_recv_arr[2]==1)                /*打开继电器13*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器13*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,GPIO_PIN_RESET);
        
        }             
         break;
         case 14: 
         if(tcp_recv_arr[2]==1)                /*打开继电器14*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_0,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器14*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_0,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,GPIO_PIN_RESET);
        
        }            
         break;
         case 15:  
        if(tcp_recv_arr[2]==1)                /*打开继电器15*/ 
        {
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_11,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器15*/
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_11,GPIO_PIN_RESET);
        
        }           
         break; 
         case 16:  
        if(tcp_recv_arr[2]==1)                /*打开继电器16*/ 
        {
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_10,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器16*/
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_10,GPIO_PIN_RESET);
        
        }        
       break;
      case 17:     
        if(tcp_recv_arr[2]==1)                /*打开继电器17*/ 
        {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_15,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器17*/
        {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_15,GPIO_PIN_RESET);
        
        }          
      break;
      case 18:
       if(tcp_recv_arr[2]==1)                  /*打开继电器18*/ 
        {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_12,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_14,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器18*/
        {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_12,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_14,GPIO_PIN_RESET);
        
        }                
      break;
+       /*H4*/
      case 19: 
       if(tcp_recv_arr[2]==1)                  /*打开继电器19*/ 
        {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_11,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_13,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器19*/
        {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_11,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_13,GPIO_PIN_RESET);
        
        }       
      break;
      case 20: 
      if(tcp_recv_arr[2]==1)                  /*打开继电器20*/ 
        {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_10,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_12,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器20*/
        {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_10,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_12,GPIO_PIN_RESET);
        
        }        
      break; 
      case 21:    
      if(tcp_recv_arr[2]==1)                  /*打开继电器21*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_11,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器21*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_11,GPIO_PIN_RESET);
        
        }       
      break;
      case 22:    
       if(tcp_recv_arr[2]==1)                  /*打开继电器22*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_8,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_10,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器22*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_8,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_10,GPIO_PIN_RESET);
        
        }         
      break;
      case 23:  
       if(tcp_recv_arr[2]==1)                  /*打开继电器23*/ 
        {
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_9,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器23*/
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_9,GPIO_PIN_RESET);
        
        }       
      break;
      case 24:     
        if(tcp_recv_arr[2]==1)                  /*打开继电器24*/ 
       {
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_8,GPIO_PIN_SET);
       }
       else                                    /*关闭继电器24*/
       {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_8,GPIO_PIN_RESET);
        
       }           
      break;
+      /*H5*/
      case 25:  
       if(tcp_recv_arr[2]==1)                  /*打开继电器25*/ 
       {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_9,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_7,GPIO_PIN_SET);
       }
       else                                    /*关闭继电器25*/
       {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_9,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_7,GPIO_PIN_RESET);
        
       }            
      break; 
      case 26: 
       if(tcp_recv_arr[2]==1)                  /*打开继电器26*/ 
       {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_2,GPIO_PIN_SET);
       }
       else                                    /*关闭继电器26*/
       {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_2,GPIO_PIN_RESET);
        
       }           
       break;
      case 27:   
        if(tcp_recv_arr[2]==1)                  /*打开继电器27*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1,GPIO_PIN_SET);
       }
       else                                    /*关闭继电器27*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1,GPIO_PIN_RESET);
        
       }         
       break;
      case 28: 
        if(tcp_recv_arr[2]==1)                  /*打开继电器28*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0,GPIO_PIN_SET);
       }
       else                                    /*关闭继电器28*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0,GPIO_PIN_RESET);
        
       }    
      break;
      case 29:   
         if(tcp_recv_arr[2]==1)                  /*打开继电器29*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_5,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器29*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_5,GPIO_PIN_RESET);
        
       }    
      break;
      case 30:     
         if(tcp_recv_arr[2]==1)                  /*打开继电器30*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_4,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器30*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_4,GPIO_PIN_RESET);
        
       }      
      break;
+      /*H6*/
      case 31:     
-         if(tcp_recv_arr[2]==1)                  /*打开继电器31*/ 
+        if(tcp_recv_arr[2]==1)                  /*打开继电器31*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_11,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器31*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_11,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7,GPIO_PIN_RESET);
        
       }        
      break;
      case 32:     
          if(tcp_recv_arr[2]==1)                  /*打开继电器32*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_10,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_6,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器32*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_10,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_6,GPIO_PIN_RESET);
        
       }        
      break;
      case 33:     
        if(tcp_recv_arr[2]==1)                  /*打开继电器33*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_2,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器33*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_2,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET);
        
       }          
      break;
      case 34: 
        if(tcp_recv_arr[2]==1)                  /*打开继电器34*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器34*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4,GPIO_PIN_RESET);
        
       }            
      break;
      case 35:  
       if(tcp_recv_arr[2]==1)                  /*打开继电器35*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_3,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器35*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_3,GPIO_PIN_RESET);
        
       }        
       break; 
      case 36:    
       if(tcp_recv_arr[2]==1)                  /*打开继电器36*/ 
       {
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_5,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_2,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器36*/
       {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_5,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_2,GPIO_PIN_RESET);
        
       }        
      break;
+      /*H7*/
      case 37: 
        if(tcp_recv_arr[2]==1)                  /*打开继电器37*/ 
       {
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_4,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器37*/
       {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_4,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,GPIO_PIN_RESET);
        
       }          
       break;
      case 38:
        if(tcp_recv_arr[2]==1)                      /*打开继电器38*/ 
       {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_0,GPIO_PIN_SET);
       }
       else                                          /*关闭继电器38*/
       {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_0,GPIO_PIN_RESET);
        
       }             
       break;
      case 39: 
       if(tcp_recv_arr[2]==1)                      /*打开继电器39*/ 
       {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_3,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_4,GPIO_PIN_SET);
       }
       else                                          /*关闭继电器39*/
       {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_3,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_4,GPIO_PIN_RESET);
        
       }              
      break;
      case 40:    
       if(tcp_recv_arr[2]==1)                        /*打开继电器40*/ 
       {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_2,GPIO_PIN_SET);
       }
       else                                          /*关闭继电器40*/
       {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_2,GPIO_PIN_RESET);
        
       }        
-      break;                 
-      default:break;
+      break; 
+     case 41:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器41*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_3,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器41*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_3,GPIO_PIN_RESET);
+       
+      }        
+      break; 
+      case 42:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器42*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_2,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器42*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_2,GPIO_PIN_RESET);
+       
+      }  
+      break;
+      /*H8*/      
+      case 43:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器43*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器43*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_RESET);
+       
+      }  
+      break;  
+      case 44:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器44*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_0,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器44*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_0,GPIO_PIN_RESET);  
+      }  
+      break;  
+      case 45:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器45*/ 
+      {
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_1,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器45*/
+      {
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_1,GPIO_PIN_RESET);  
+      }  
+      break;  
+       case 46:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器46*/ 
+      {
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_0,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器46*/
+      {
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_0,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 47:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器47*/ 
+      {
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_10,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器47*/
+      {
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_10,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 48:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器48*/ 
+      {
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_9,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器48*/
+      {
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_9,GPIO_PIN_RESET);  
+      }  
+      break;
+      /*H9*/
+      case 49:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器49*/ 
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器49*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 50:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器50*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器50*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 51:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器51*/ 
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器51*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 52:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器52*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_6,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器52*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_6,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 53:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器53*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_5,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器53*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_5,GPIO_PIN_RESET);  
+      }  
+      break; 
+     case 54:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器54*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_4,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器54*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_4,GPIO_PIN_RESET);  
+      }  
+      break;  
+     /*H10*/ 
+      case 55:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器55*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_3,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器55*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_3,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 56:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器56*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器56*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 57:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器57*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_1,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器57*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_1,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 58:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器58*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_0,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器58*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_0,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 59:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器59*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_9,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器59*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_9,GPIO_PIN_RESET);  
+      }  
+      break;  
+      case 60:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器60*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器60*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,GPIO_PIN_RESET);  
+      }  
+      break;
+     /*H11*/ 
+     case 61:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器61*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_7,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器61*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_7,GPIO_PIN_RESET);  
+      }  
+      break; 
+     case 62:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器62*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_6,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器62*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_6,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 63:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器63*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器63*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 64:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器64*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器64*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 65:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器65*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器65*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 66:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器66*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_7,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器66*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_7,GPIO_PIN_RESET);  
+      }  
+      break;
+      /*H12*/      
+      case 67:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器67*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_6,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器67*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_6,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 68:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器68*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_5,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器68*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_5,GPIO_PIN_RESET);  
+      }  
+      break;  
+      case 69:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器69*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_4,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器69*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_4,GPIO_PIN_RESET);  
+      }  
+      break; 
+     case 70:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器70*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_3,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器70*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_3,GPIO_PIN_RESET);  
+      }  
+      break; 
+     case 71:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器71*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器71*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_RESET);  
+      }  
+      break;  
+     case 72:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器72*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器72*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_RESET);  
+      }  
+      break;  
+      /*H13*/ 
+      case 73:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器73*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_0,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器73*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_0,GPIO_PIN_RESET);  
+      }  
+      break; 
+     case 74:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器74*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_12,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器74*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_12,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 75:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器75*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_11,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器75*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_11,GPIO_PIN_RESET);  
+      }  
+      break;
+     case 76:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器76*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_10,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器76*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_10,GPIO_PIN_RESET);  
+      }  
+     break; 
+     case 77:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器77*/ 
+      {
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器77*/
+      {
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15,GPIO_PIN_RESET);  
+      }  
+     break; 
+    case 78:    
+      if(tcp_recv_arr[2]==1)                        /*打开继电器77*/ 
+      {
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_6,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器77*/
+      {
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_6,GPIO_PIN_RESET);  
+      }  
+     break;          
+    default:break;
       
      } 
    }
@@ -524,446 +917,839 @@ void uart_recv_data_process(void)
    {
      switch(uart_recv_arr[1])
      {
-       case 1:                  
+         /*H1*/
+      case 1:                  
        if(uart_recv_arr[2]==1)   
        {                                  /*打开继电器1*/
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_10,GPIO_PIN_SET);
        }
        else                                /*关闭继电器1*/ 
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,GPIO_PIN_RESET);
-       
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_10,GPIO_PIN_RESET);       
        }
-       break;
+        break;
        case 2:                          
          if(uart_recv_arr[2]==1)   
        {                                     /*打开继电器2*/
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_12,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_9,GPIO_PIN_SET);
        }
        else                                   /*关闭继电器2*/ 
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_12,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_9,GPIO_PIN_RESET);
        
        }       
         break;
         case 3:                            
         if(uart_recv_arr[2]==1)        
        {                                     /*打开继电器3*/ 
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_11,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器3*/ 
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_11,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,GPIO_PIN_RESET);
        
        }            
         break;
-        case 4:                              
+       case 4:                              
         if(uart_recv_arr[2]==1)        
        {                                       /*打开继电器4*/ 
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_10,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_SET);
        }
        else                                /*关闭继电器4*/ 
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_10,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_RESET);
        
        }         
         break;
        case 5:    
         if(uart_recv_arr[2]==1)               /*打开继电器5*/ 
        {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_9,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_SET);
        }
        else                                   /*关闭继电器5*/
        {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_9,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_RESET);
        
        }              
         break; 
         case 6:      
         if(uart_recv_arr[2]==1)               /*打开继电器6*/ 
        {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_SET);
        }
        else                                   /*关闭继电器6*/
        {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,GPIO_PIN_RESET);
-       
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_RESET);       
        }             
         break;
-        case 7:    
+        /*H2*/
+       case 7:    
        if(uart_recv_arr[2]==1)               /*打开继电器7*/ 
        {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,GPIO_PIN_SET);
        }
        else                                   /*关闭继电器7*/
        {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5,GPIO_PIN_RESET);
-       
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,GPIO_PIN_RESET);       
        }     
         break;
         case 8:     
         if(uart_recv_arr[2]==1)               /*打开继电器8*/ 
        {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_SET);
        }
        else                                   /*关闭继电器8*/
        {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
        
        }     
         break;
         case 9:      
-         if(uart_recv_arr[2]==1)               /*打开继电器9*/ 
+       if(uart_recv_arr[2]==1)               /*打开继电器9*/ 
        {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器9*/
        {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
        
        }                  
         break;
         case 10:    
        if(uart_recv_arr[2]==1)               /*打开继电器10*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_4,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器10*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_4,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
        
        }       
         break; 
         case 11:    
       if(uart_recv_arr[2]==1)                /*打开继电器11*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_3,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器11*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_3,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
        
        }       
         break;
         case 12:     
        if(uart_recv_arr[2]==1)                /*打开继电器12*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_11,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器12*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_11,GPIO_PIN_RESET);
        
        }           
         break;
+        /*H3*/
         case 13: 
-         if(uart_recv_arr[2]==1)                /*打开继电器13*/ 
+        if(uart_recv_arr[2]==1)                /*打开继电器13*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器13*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_10,GPIO_PIN_RESET);
        
        }             
         break;
         case 14: 
         if(uart_recv_arr[2]==1)                /*打开继电器14*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_0,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器14*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_0,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,GPIO_PIN_RESET);
        
        }            
         break;
         case 15:  
        if(uart_recv_arr[2]==1)                /*打开继电器15*/ 
        {
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_11,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器15*/
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_11,GPIO_PIN_RESET);
        
        }           
         break; 
         case 16:  
        if(uart_recv_arr[2]==1)                /*打开继电器16*/ 
        {
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_10,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器16*/
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_10,GPIO_PIN_RESET);
        
        }        
       break;
      case 17:     
        if(uart_recv_arr[2]==1)                /*打开继电器17*/ 
        {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_15,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器17*/
        {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_15,GPIO_PIN_RESET);
        
        }          
      break;
      case 18:
       if(uart_recv_arr[2]==1)                  /*打开继电器18*/ 
        {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_12,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_14,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器18*/
        {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_12,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_14,GPIO_PIN_RESET);
        
        }                
      break;
+       /*H4*/
      case 19: 
       if(uart_recv_arr[2]==1)                  /*打开继电器19*/ 
        {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_11,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_13,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器19*/
        {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_11,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_13,GPIO_PIN_RESET);
        
        }       
      break;
      case 20: 
      if(uart_recv_arr[2]==1)                  /*打开继电器20*/ 
        {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_10,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_12,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器20*/
        {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_10,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_12,GPIO_PIN_RESET);
        
        }        
      break; 
      case 21:    
      if(uart_recv_arr[2]==1)                  /*打开继电器21*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_11,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器21*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_9,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_11,GPIO_PIN_RESET);
        
        }       
      break;
      case 22:    
       if(uart_recv_arr[2]==1)                  /*打开继电器22*/ 
        {
-          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_8,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_10,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器22*/
        {
-         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_8,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_10,GPIO_PIN_RESET);
        
        }         
      break;
      case 23:  
       if(uart_recv_arr[2]==1)                  /*打开继电器23*/ 
        {
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_9,GPIO_PIN_SET);
        }
        else                                    /*关闭继电器23*/
        {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_9,GPIO_PIN_RESET);
        
        }       
      break;
      case 24:     
        if(uart_recv_arr[2]==1)                  /*打开继电器24*/ 
       {
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_8,GPIO_PIN_SET);
       }
       else                                    /*关闭继电器24*/
       {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_8,GPIO_PIN_RESET);
        
       }           
      break;
+      /*H5*/
      case 25:  
       if(uart_recv_arr[2]==1)                  /*打开继电器25*/ 
       {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_9,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_7,GPIO_PIN_SET);
       }
       else                                    /*关闭继电器25*/
       {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_9,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_7,GPIO_PIN_RESET);
        
       }            
      break; 
      case 26: 
       if(uart_recv_arr[2]==1)                  /*打开继电器26*/ 
       {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_2,GPIO_PIN_SET);
       }
       else                                    /*关闭继电器26*/
       {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_8,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_2,GPIO_PIN_RESET);
        
       }           
       break;
      case 27:   
        if(uart_recv_arr[2]==1)                  /*打开继电器27*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1,GPIO_PIN_SET);
       }
       else                                    /*关闭继电器27*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1,GPIO_PIN_RESET);
        
       }         
       break;
      case 28: 
        if(uart_recv_arr[2]==1)                  /*打开继电器28*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0,GPIO_PIN_SET);
       }
       else                                    /*关闭继电器28*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0,GPIO_PIN_RESET);
        
       }    
      break;
      case 29:   
         if(uart_recv_arr[2]==1)                  /*打开继电器29*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_5,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器29*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_5,GPIO_PIN_RESET);
        
       }    
      break;
      case 30:     
         if(uart_recv_arr[2]==1)                  /*打开继电器30*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_4,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器30*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_12,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_4,GPIO_PIN_RESET);
        
       }      
      break;
+      /*H6*/
      case 31:     
-         if(uart_recv_arr[2]==1)                  /*打开继电器31*/ 
+        if(uart_recv_arr[2]==1)                  /*打开继电器31*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_11,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器31*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_11,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7,GPIO_PIN_RESET);
        
       }        
      break;
      case 32:     
          if(uart_recv_arr[2]==1)                  /*打开继电器32*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_10,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_6,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器32*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_10,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_6,GPIO_PIN_RESET);
        
       }        
      break;
      case 33:     
        if(uart_recv_arr[2]==1)                  /*打开继电器33*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_2,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器33*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_2,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET);
        
       }          
      break;
      case 34: 
        if(uart_recv_arr[2]==1)                  /*打开继电器34*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器34*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4,GPIO_PIN_RESET);
        
       }            
      break;
      case 35:  
       if(uart_recv_arr[2]==1)                  /*打开继电器35*/ 
       {
-          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_3,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器35*/
       {
-         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_3,GPIO_PIN_RESET);
        
       }        
       break; 
      case 36:    
       if(uart_recv_arr[2]==1)                  /*打开继电器36*/ 
       {
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_5,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_2,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器36*/
       {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_5,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_2,GPIO_PIN_RESET);
        
       }        
      break;
+      /*H7*/
      case 37: 
        if(uart_recv_arr[2]==1)                  /*打开继电器37*/ 
       {
-          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_4,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,GPIO_PIN_SET);
       }
       else                                     /*关闭继电器37*/
       {
-         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_4,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,GPIO_PIN_RESET);
        
       }          
       break;
      case 38:
        if(uart_recv_arr[2]==1)                      /*打开继电器38*/ 
       {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_0,GPIO_PIN_SET);
       }
       else                                          /*关闭继电器38*/
       {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_0,GPIO_PIN_RESET);
        
       }             
       break;
      case 39: 
       if(uart_recv_arr[2]==1)                      /*打开继电器39*/ 
       {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_3,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_4,GPIO_PIN_SET);
       }
       else                                          /*关闭继电器39*/
       {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_3,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_4,GPIO_PIN_RESET);
        
       }              
      break;
      case 40:    
       if(uart_recv_arr[2]==1)                        /*打开继电器40*/ 
       {
-          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_SET);
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_2,GPIO_PIN_SET);
       }
       else                                          /*关闭继电器40*/
       {
-         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET);
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_2,GPIO_PIN_RESET);
        
+      }        
+      break; 
+     case 41:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器41*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_3,GPIO_PIN_SET);
       }
+      else                                          /*关闭继电器41*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_3,GPIO_PIN_RESET);
+       
+      }        
+      break; 
+      case 42:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器42*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_2,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器42*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_2,GPIO_PIN_RESET);
+       
+      }  
       break;
+      /*H8*/      
+      case 43:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器43*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器43*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_RESET);
+       
+      }  
+      break;  
+      case 44:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器44*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_0,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器44*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_0,GPIO_PIN_RESET);  
+      }  
+      break;  
+      case 45:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器45*/ 
+      {
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_1,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器45*/
+      {
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_1,GPIO_PIN_RESET);  
+      }  
+      break;  
+      case 46:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器46*/ 
+      {
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_0,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器46*/
+      {
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_0,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 47:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器47*/ 
+      {
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_10,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器47*/
+      {
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_10,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 48:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器48*/ 
+      {
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_9,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器48*/
+      {
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_9,GPIO_PIN_RESET);  
+      }  
+      break;
+      /*H9*/
+      case 49:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器49*/ 
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器49*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 50:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器50*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器50*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 51:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器51*/ 
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器51*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 52:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器52*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_6,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器52*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_6,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 53:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器53*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_5,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器53*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_5,GPIO_PIN_RESET);  
+      }  
+      break; 
+     case 54:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器54*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_4,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器54*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_4,GPIO_PIN_RESET);  
+      }  
+      break;  
+     /*H10*/ 
+      case 55:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器55*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_3,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器55*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_3,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 56:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器56*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器56*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 57:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器57*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_1,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器57*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_1,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 58:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器58*/ 
+      {
+          HAL_GPIO_WritePin(GPIOE,GPIO_PIN_0,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器58*/
+      {
+         HAL_GPIO_WritePin(GPIOE,GPIO_PIN_0,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 59:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器59*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_9,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器59*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_9,GPIO_PIN_RESET);  
+      }  
+      break;  
+      case 60:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器60*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器60*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,GPIO_PIN_RESET);  
+      }  
+      break;
+     /*H11*/ 
+     case 61:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器61*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_7,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器61*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_7,GPIO_PIN_RESET);  
+      }  
+      break; 
+     case 62:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器62*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_6,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器62*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_6,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 63:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器63*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器63*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 64:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器64*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器64*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_4,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 65:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器65*/ 
+      {
+          HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器65*/
+      {
+         HAL_GPIO_WritePin(GPIOB,GPIO_PIN_3,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 66:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器66*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_7,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器66*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_7,GPIO_PIN_RESET);  
+      }  
+      break;
+      /*H12*/      
+      case 67:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器67*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_6,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器67*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_6,GPIO_PIN_RESET);  
+      }  
+      break; 
+      case 68:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器68*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_5,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器68*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_5,GPIO_PIN_RESET);  
+      }  
+      break;  
+      case 69:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器69*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_4,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器69*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_4,GPIO_PIN_RESET);  
+      }  
+      break; 
+     case 70:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器70*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_3,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器70*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_3,GPIO_PIN_RESET);  
+      }  
+      break; 
+     case 71:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器71*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器71*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_2,GPIO_PIN_RESET);  
+      }  
+      break;  
+     case 72:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器72*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器72*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_1,GPIO_PIN_RESET);  
+      }  
+      break;  
+      /*H13*/ 
+      case 73:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器73*/ 
+      {
+          HAL_GPIO_WritePin(GPIOD,GPIO_PIN_0,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器73*/
+      {
+         HAL_GPIO_WritePin(GPIOD,GPIO_PIN_0,GPIO_PIN_RESET);  
+      }  
+      break; 
+     case 74:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器74*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_12,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器74*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_12,GPIO_PIN_RESET);  
+      }  
+      break;
+      case 75:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器75*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_11,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器75*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_11,GPIO_PIN_RESET);  
+      }  
+      break;
+     case 76:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器76*/ 
+      {
+          HAL_GPIO_WritePin(GPIOC,GPIO_PIN_10,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器76*/
+      {
+         HAL_GPIO_WritePin(GPIOC,GPIO_PIN_10,GPIO_PIN_RESET);  
+      }  
+     break; 
+     case 77:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器77*/ 
+      {
+          HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器77*/
+      {
+         HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15,GPIO_PIN_RESET);  
+      }  
+     break; 
+    case 78:    
+      if(uart_recv_arr[2]==1)                        /*打开继电器77*/ 
+      {
+          HAL_GPIO_WritePin(GPIOF,GPIO_PIN_6,GPIO_PIN_SET);
+      }
+      else                                          /*关闭继电器77*/
+      {
+         HAL_GPIO_WritePin(GPIOF,GPIO_PIN_6,GPIO_PIN_RESET);  
+      }  
+     break;   
       /* ===== 网络配置命令 ===== */
       case 0xA0:  /* 设置网络模式: 0=DHCP, 1=静态IP */
       {

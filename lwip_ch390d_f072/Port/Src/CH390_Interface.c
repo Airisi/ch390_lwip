@@ -84,3 +84,5 @@ void ch390_write_mem(uint8_t *data, int length)
     while (length-- > 0 && ch390_get_error() == CH390_ERROR_NONE) { exchange(*data++); }
     select_chip(GPIO_PIN_SET);
 }
+
+

@@ -108,3 +108,4 @@ void network_app_poll(void)
 #endif
     USB_DIAG_STAGE(USB_DIAG_IDLE);
 }
+
